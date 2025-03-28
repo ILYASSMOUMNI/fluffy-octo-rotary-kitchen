@@ -19,5 +19,9 @@ from django.urls import path , include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',include('recipes.urls'))
+    path('recipes/', include('recipes.urls')),
+    path('ingredient/', include('recipes.urls')),
+    path('categories/', include('recipes.urls')),
+    path('RecipeIngredient/', include('recipes.urls')),
+    path('',include('recipes.urls')) # ma3reftch hdi wch darurya ola la 
 ]
