@@ -8,28 +8,30 @@ def recipe_add(request):
     if request.method == 'POST':
         form = RecipeForm(request.POST, request.FILES)
         if form.is_valid():
-            # Assign the recipe to the logged-in user
             recipe = form.save(commit=False)
-            recipe.created_by = request.user  # Changed from user to created_by
+            recipe.created_by = request.user
             recipe.save()
+            form.save_m2m()  # Save ManyToMany relationships
 
-            # For ManyToManyField, we need to save the form first
-            form.save_m2m()  # This saves the ingredients relationship
-            
+            # Handle new ingredients (if entered manually)
+            new_ingredients = request.POST.get('new_ingredients', '')
+            if new_ingredients:
+                ingredient_list = [ing.strip() for ing in new_ingredients.split(',') if ing.strip()]
+                for ing in ingredient_list:
+                    ingredient, created = Ingredient.objects.get_or_create(name=ing)
+                    recipe.ingredients.add(ingredient)
+
             return redirect('recipe_list')
-        else:
-            # Print form errors for debugging
-            print(form.errors)
     else:
         form = RecipeForm()
-    
-    # Add context to help diagnose issues
+
     categories = Category.objects.all()
     return render(request, 'recipes/add_recipe.html', {
         'form': form,
         'categories': categories,
         'has_categories': categories.exists()
     })
+
 def recipe_edit(request, id):
     # Get the recipe object by its ID
     recipe = get_object_or_404(Recipe, id=id, user=request.user)
@@ -68,3 +70,6 @@ def recipe_by_category(request, id):
         'category': category,
         'recipes': recipes
     })
+def category_list(request):
+    categories = Category.objects.all()
+    return render(request, 'recipes/category_list.html', {'categories': categories})

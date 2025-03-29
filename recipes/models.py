@@ -20,7 +20,7 @@ class Recipe(models.Model):
     description = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='recipes')
     ingredients = models.ManyToManyField(Ingredient, related_name='recipes')
-    servings = models.PositiveIntegerField()
+    servings = models.IntegerField(null=True, blank=True)
     instructions = models.TextField()
     image = models.ImageField(upload_to='recipes/', blank=True, null=True)
     created_by = models.ForeignKey('users.User', on_delete=models.CASCADE)

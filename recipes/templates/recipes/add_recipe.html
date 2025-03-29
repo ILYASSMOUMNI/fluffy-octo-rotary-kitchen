@@ -75,19 +75,20 @@
                         <!-- Ingredients Section -->
                         <div class="form-group mb-3">
                             <label for="{{ form.ingredients.id_for_label }}" class="form-label fw-bold">Ingredients</label>
-                            <div id="ingredients-list">
-                                <!-- Dynamic ingredient fields will be added here -->
-                                <div class="ingredient-item">
-                                    <input type="text" name="ingredients" class="form-control" placeholder="Enter an ingredient">
-                                    <button type="button" class="btn btn-danger btn-sm remove-ingredient">Remove</button>
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-primary btn-sm" id="add-ingredient">Add Ingredient</button>
-                            <small class="text-muted">Enter the ingredients for your recipe (one per line)</small>
+                            {{ form.ingredients }}
                             {% if form.ingredients.errors %}
                                 <div class="text-danger">{{ form.ingredients.errors }}</div>
                             {% endif %}
+
+                            <label class="form-label mt-3">Add New Ingredients (comma-separated)</label>
+                            <div class="input-group mb-2">
+                                <input type="text" name="new_ingredients" class="form-control" placeholder="Enter new ingredients" id="new-ingredient-input">
+                                <button type="button" class="btn btn-outline-success" id="add-ingredient">Add</button>
+                            </div>
+
+                            <div id="ingredients-list"></div>
                         </div>
+                      
                         
                         <div class="form-group mb-3">
                             <label for="{{ form.instructions.id_for_label }}" class="form-label fw-bold">Instructions</label>
@@ -111,7 +112,6 @@
 </div>
 
 <style>
-    /* Custom styles to enhance form fields */
     .recipe-form input[type="text"],
     .recipe-form input[type="number"],
     .recipe-form select,
@@ -122,12 +122,11 @@
         line-height: 1.5;
         color: #212529;
         background-color: #fff;
-        background-clip: padding-box;
         border: 1px solid #ced4da;
         border-radius: 0.25rem;
         transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     }
-    
+
     .recipe-form input[type="text"]:focus,
     .recipe-form input[type="number"]:focus,
     .recipe-form select:focus,
@@ -136,52 +135,54 @@
         outline: 0;
         box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
     }
-    
+
     .recipe-form textarea {
         min-height: 120px;
     }
-    
-    .recipe-form select {
-        appearance: auto;
-    }
-    
-    /* Style for the multiple select field */
+
     .recipe-form select[multiple] {
         min-height: 150px;
+    }
+
+    #ingredients-list .ingredient-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .ingredient-item input {
+        flex: 1;
+        margin-right: 0.5rem;
     }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const ingredientsList = document.getElementById('ingredients-list');
-        const addIngredientButton = document.getElementById('add-ingredient');
+        const input = document.getElementById('new-ingredient-input');
+        const list = document.getElementById('ingredients-list');
+        const addBtn = document.getElementById('add-ingredient');
 
-        // Function to add a new ingredient field
-        addIngredientButton.addEventListener('click', function () {
-            const newIngredientItem = document.createElement('div');
-            newIngredientItem.classList.add('ingredient-item');
-            
-            // Create a new input field for the ingredient
-            const inputElement = document.createElement('input');
-            inputElement.type = 'text';
-            inputElement.name = 'ingredients';
-            inputElement.classList.add('form-control');
-            inputElement.placeholder = 'Enter an ingredient';
-            
-            // Add the "Remove" button
-            const removeButton = document.createElement('button');
-            removeButton.type = 'button';
-            removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'remove-ingredient');
-            removeButton.textContent = 'Remove';
-            
-            removeButton.addEventListener('click', function () {
-                ingredientsList.removeChild(newIngredientItem);
-            });
+        addBtn.addEventListener('click', function () {
+            const value = input.value.trim();
+            if (value) {
+                const ingredients = value.split(',').map(item => item.trim()).filter(item => item !== '');
+                ingredients.forEach(ingredient => {
+                    const div = document.createElement('div');
+                    div.className = 'ingredient-item';
+                    div.innerHTML = `
+                        <input type="text" name="new_ingredients" value="${ingredient}" class="form-control" readonly>
+                        <button type="button" class="btn btn-danger btn-sm remove-ingredient ms-2">Remove</button>
+                    `;
+                    list.appendChild(div);
+                });
+                input.value = '';
+            }
+        });
 
-            // Append the new element
-            newIngredientItem.appendChild(inputElement);
-            newIngredientItem.appendChild(removeButton);
-            ingredientsList.appendChild(newIngredientItem);
+        list.addEventListener('click', function (event) {
+            if (event.target.classList.contains('remove-ingredient')) {
+                event.target.closest('.ingredient-item').remove();
+            }
         });
     });
 </script>

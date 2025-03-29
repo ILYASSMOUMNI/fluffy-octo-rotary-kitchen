@@ -2,17 +2,17 @@ from django import forms
 from .models import Recipe, Category, Ingredient
 
 class RecipeForm(forms.ModelForm):
+    ingredients = forms.ModelMultipleChoiceField(
+        queryset=Ingredient.objects.all(),
+        widget=forms.CheckboxSelectMultiple,  # You can change this if needed
+        required=False  # Make it optional to allow new ingredients
+    )
+
     class Meta:
         model = Recipe
-        fields = ['title', 'description', 'category', 'ingredients', 'servings', 'instructions', 'image']
-        widgets = {
-            'description': forms.Textarea(attrs={'rows': 3}),
-            'instructions': forms.Textarea(attrs={'rows': 5}),
-        }
-        ingredients = forms.CharField(
-        widget=forms.Textarea(attrs={'placeholder': 'Enter ingredients (comma-separated)', 'rows': 4}),
-        required=False
-        )
+        fields = ['title', 'description', 'category', 'ingredients', 'image','servings', ]
+
+
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
