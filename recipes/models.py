@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -16,14 +17,14 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     description = models.TextField()
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='recipes')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)  # This should be a ForeignKey to Category
     ingredients = models.ManyToManyField(Ingredient, related_name='recipes')
-    servings = models.IntegerField(null=True, blank=True)
+    servings = models.PositiveIntegerField(default=1)
     instructions = models.TextField()
-    image = models.ImageField(upload_to='recipes/', blank=True, null=True)
-    created_by = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='recipes/', null=True, blank=True)
 
     def __str__(self):
         return self.title

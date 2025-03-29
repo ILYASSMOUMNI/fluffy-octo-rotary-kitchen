@@ -10,6 +10,7 @@ def create_categories(apps, schema_editor):
     Category.objects.get_or_create(name="Food")
     Category.objects.get_or_create(name="Dessert")
     Category.objects.get_or_create(name="Appetizer")
+    
 
 class Migration(migrations.Migration):
 

@@ -7,26 +7,27 @@
     <h2 class="text-4xl font-bold text-gray-900 text-center mb-12">Explore Our Categories</h2>
 
     {% if categories %}
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {% for category in categories %}
-                <a href="{% url 'recipe_by_category' category.id %}" class="group relative block rounded-xl overflow-hidden shadow-lg transition-all hover:scale-105 hover:shadow-xl">
-                    <div class="absolute inset-0 bg-gradient-to-t from-transparent via-black/60 to-black/40 transition-all group-hover:opacity-50"></div>
-                    <div class="relative z-10 p-6 bg-white rounded-xl">
-                        <div class="flex items-center justify-between space-x-4">
-                            <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center text-white font-bold text-xl rounded-full shadow-lg">
-                                <span>{{ category.name|first }}</span>
-                            </div>
-                            <h3 class="text-2xl font-semibold text-gray-800">{{ category.name }}</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        {% for category in categories %}
+            <a href="{% url 'recipe_by_category' category.id %}" class="group relative block rounded-xl overflow-hidden shadow-lg transition-all hover:scale-105 hover:shadow-xl">
+                <div class="absolute inset-0 bg-gradient-to-t from-transparent via-black/60 to-black/40 transition-all group-hover:opacity-50"></div>
+                <div class="relative z-10 p-6 bg-white rounded-xl">
+                    <div class="flex items-center justify-between space-x-4">
+                        <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center text-white font-bold text-xl rounded-full shadow-lg">
+                            <span>{{ category.name|first }}</span>
                         </div>
+                        <h3 class="text-2xl font-semibold text-gray-800">{{ category.name }}</h3>
                     </div>
-                    <div class="absolute bottom-4 left-4 text-white opacity-0 group-hover:opacity-100 transition-all duration-300">
-                        <p class="text-lg">Explore Recipes</p>
-                    </div>
-                </a>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p class="text-center text-gray-500 mt-6">No categories found. Check back soon!</p>
-    {% endif %}
+                </div>
+                <div class="absolute bottom-4 left-4 text-white opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <p class="text-lg">Explore Recipes</p>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-center text-gray-500 mt-6">No categories found. Check back soon!</p>
+{% endif %}
+
 </div>
 {% endblock %}
