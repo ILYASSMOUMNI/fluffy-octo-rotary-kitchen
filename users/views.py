@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .forms import RegisterForm, EditProfileForm
+from .forms import RegisterForm, EditProfileForm, RecipeForm
 from django.contrib import messages
+from .models import Recipe
 
 # Register View
 def register_view(request):
@@ -34,6 +35,7 @@ def login_view(request):
 def dashboard_view(request):
     # Pass the user's role (chef, amateur, blogueur) to the template
     return render(request, 'users/dashboard.html', {'user': request.user})
+
 # Edit Profile View (only accessible when logged in)
 @login_required
 def edit_profile_view(request):
@@ -51,7 +53,6 @@ def edit_profile_view(request):
     
     return render(request, 'users/edit_profile.html', {'form': form})
 
-
 # Logout View
 def logout_view(request):
     logout(request)
@@ -61,3 +62,20 @@ def logout_view(request):
 # Home View (public access)
 def home(request):
     return render(request, 'users/home.html')
+
+@login_required
+def recipe_edit(request, recipe_id):
+    recipe = get_object_or_404(Recipe, id=recipe_id, created_by=request.user)
+    
+    if request.method == 'POST':
+        form = RecipeForm(request.POST, request.FILES, instance=recipe)
+        if form.is_valid():
+            form.save()
+            return redirect('home')  # or wherever you want to redirect after editing
+    else:
+        form = RecipeForm(instance=recipe)
+    
+    return render(request, 'users/recipe_edit.html', {
+        'form': form,
+        'recipe': recipe
+    })

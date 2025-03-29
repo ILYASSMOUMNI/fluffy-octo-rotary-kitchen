@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User
+from .models import User, Recipe
 from django.core.exceptions import ValidationError
 
 # Register Form with additional fields (role, bio, profile_picture)
@@ -41,3 +41,13 @@ class EditProfileForm(forms.ModelForm):
         if User.objects.exclude(pk=self.instance.pk).filter(email=email).exists():
             raise ValidationError("This email is already taken. Please use another one.")
         return email
+
+class RecipeForm(forms.ModelForm):
+    class Meta:
+        model = Recipe
+        fields = ['title', 'description', 'ingredients', 'instructions', 'servings', 'cooking_time', 'category', 'image']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'ingredients': forms.Textarea(attrs={'rows': 5}),
+            'instructions': forms.Textarea(attrs={'rows': 5}),
+        }
