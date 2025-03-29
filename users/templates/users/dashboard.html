@@ -11,53 +11,53 @@
             <p class="lead">Your role: <strong>{{ user.get_role_display }}</strong></p>
 
             {% if user.role == 'chef' %}
-                <div class="card">
+                <div class="card shadow-sm mb-4">
                     <div class="card-header bg-success text-white">
-                        <h3>Chef's Dashboard</h3>
+                        <h3><i class="fas fa-utensils"></i> Chef's Dashboard</h3>
                     </div>
                     <div class="card-body">
                         <p>As a Chef, you can:</p>
                         <ul>
-                            <li>Create and manage your recipes.</li>
-                            <li>Track your orders and update dish statuses.</li>
-                            <li>View customer reviews and ratings for your dishes.</li>
+                            <li><i class="fas fa-plus-circle"></i> Create and manage your recipes.</li>
+                            <li><i class="fas fa-clipboard-list"></i> Track your orders and update dish statuses.</li>
+                            <li><i class="fas fa-comments"></i> View customer reviews and ratings for your dishes.</li>
                         </ul>
                         
                         <!-- Buttons for recipe management -->
-                        <a href="{% url 'recipe_add' %}" class="btn btn-success">Add New Recipe</a>
-                        <a href="{% url 'recipe_list' %}" class="btn btn-primary">Manage Recipes</a>
+                        <a href="{% url 'recipe_add' %}" class="btn btn-success btn-lg"><i class="fas fa-plus"></i> Add New Recipe</a>
+                        <a href="{% url 'recipe_list' %}" class="btn btn-primary btn-lg"><i class="fas fa-cogs"></i> Manage Recipes</a>
                     </div>
                 </div>
             {% elif user.role == 'amateur' %}
-                <div class="card">
+                <div class="card shadow-sm mb-4">
                     <div class="card-header bg-info text-white">
-                        <h3>Amateur's Dashboard</h3>
+                        <h3><i class="fas fa-search"></i> Amateur's Dashboard</h3>
                     </div>
                     <div class="card-body">
                         <p>As an Amateur, you can:</p>
                         <ul>
-                            <li>Explore new recipes from our chefs.</li>
-                            <li>Save your favorite dishes and create shopping lists.</li>
-                            <li>Rate and comment on recipes you've tried.</li>
+                            <li><i class="fas fa-eye"></i> Explore new recipes from our chefs.</li>
+                            <li><i class="fas fa-heart"></i> Save your favorite dishes and create shopping lists.</li>
+                            <li><i class="fas fa-star"></i> Rate and comment on recipes you've tried.</li>
                         </ul>
-                        <a href="#" class="btn btn-primary">Explore Recipes</a>
-                        <a href="#" class="btn btn-secondary">My Favorites</a>
+                        <a href="#" class="btn btn-primary btn-lg"><i class="fas fa-thumbs-up"></i> Explore Recipes</a>
+                        <a href="#" class="btn btn-secondary btn-lg"><i class="fas fa-bookmark"></i> My Favorites</a>
                     </div>
                 </div>
             {% elif user.role == 'blogueur' %}
-                <div class="card">
+                <div class="card shadow-sm mb-4">
                     <div class="card-header bg-warning text-white">
-                        <h3>Blogueur's Dashboard</h3>
+                        <h3><i class="fas fa-blog"></i> Blogueur's Dashboard</h3>
                     </div>
                     <div class="card-body">
                         <p>As a Blogueur, you can:</p>
                         <ul>
-                            <li>Write and publish food blogs.</li>
-                            <li>Share your recipes and tips with your audience.</li>
-                            <li>Interact with readers through comments and feedback.</li>
+                            <li><i class="fas fa-pencil-alt"></i> Write and publish food blogs.</li>
+                            <li><i class="fas fa-share-alt"></i> Share your recipes and tips with your audience.</li>
+                            <li><i class="fas fa-comments"></i> Interact with readers through comments and feedback.</li>
                         </ul>
-                        <a href="#" class="btn btn-primary">Write a New Blog</a>
-                        <a href="#" class="btn btn-info">View Comments</a>
+                        <a href="#" class="btn btn-primary btn-lg"><i class="fas fa-edit"></i> Write a New Blog</a>
+                        <a href="#" class="btn btn-info btn-lg"><i class="fas fa-comments"></i> View Comments</a>
                     </div>
                 </div>
             {% endif %}
@@ -65,9 +65,9 @@
 
         <!-- Right Side: User Profile -->
         <div class="col-md-4">
-            <div class="card">
+            <div class="card shadow-sm mb-4">
                 <div class="card-header bg-dark text-white">
-                    <h4>Your Profile</h4>
+                    <h4><i class="fas fa-user"></i> Your Profile</h4>
                 </div>
                 <div class="card-body text-center">
                     {% if user.profile_picture %}
@@ -76,7 +76,9 @@
                         <img src="https://via.placeholder.com/150" alt="Profile Picture" class="rounded-circle mb-3" width="150">
                     {% endif %}
                     <p>{{ user.bio|default:"No bio available." }}</p>
-                    <a href="{% url 'edit_profile' %}" class="btn btn-secondary">Edit Profile</a>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Joined:</strong> {{ user.date_joined|date:"M d, Y" }}</p>
+                    <a href="{% url 'edit_profile' %}" class="btn btn-secondary btn-lg"><i class="fas fa-user-edit"></i> Edit Profile</a>
                 </div>
             </div>
         </div>
@@ -84,7 +86,7 @@
 
     <!-- Logout Button -->
     <div class="mt-4 text-center">
-        <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+        <a href="{% url 'logout' %}" class="btn btn-danger btn-lg"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 </div>
 

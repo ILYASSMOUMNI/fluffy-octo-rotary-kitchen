@@ -32,9 +32,10 @@ def recipe_add(request):
         'has_categories': categories.exists()
     })
 
+@login_required
 def recipe_edit(request, id):
-    # Get the recipe object by its ID
-    recipe = get_object_or_404(Recipe, id=id, user=request.user)
+    # Get the recipe object by its ID and ensure it belongs to the logged-in user
+    recipe = get_object_or_404(Recipe, id=id, created_by=request.user)
 
     if request.method == 'POST':
         form = RecipeForm(request.POST, request.FILES, instance=recipe)
@@ -49,10 +50,9 @@ def recipe_edit(request, id):
 @login_required
 def recipe_delete(request, id):
     # Get the recipe object by its ID and ensure it belongs to the logged-in user
-    recipe = get_object_or_404(Recipe, id=id, user=request.user)
+    recipe = get_object_or_404(Recipe, id=id, created_by=request.user)
     
     if request.method == 'POST':
-        # Delete the recipe
         recipe.delete()
         return redirect('recipe_list')  # Redirect to the recipe list after deleting
     
@@ -62,6 +62,7 @@ def recipe_delete(request, id):
 def recipe_list(request):
     recipes = Recipe.objects.all()
     return render(request, 'recipes/recipe_list.html', {'recipes': recipes})
+
 def recipe_by_category(request, id):
     category = get_object_or_404(Category, id=id)  # Get the category by its ID
     recipes = Recipe.objects.filter(category=category)  # Filter recipes by the category
@@ -70,6 +71,10 @@ def recipe_by_category(request, id):
         'category': category,
         'recipes': recipes
     })
+
 def category_list(request):
     categories = Category.objects.all()
     return render(request, 'recipes/category_list.html', {'categories': categories})
+def recipe_detail(request, id):
+    recipe = get_object_or_404(Recipe, id=id)
+    return render(request, 'recipes/recipe_detail.html', {'recipe': recipe})

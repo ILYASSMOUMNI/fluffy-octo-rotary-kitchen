@@ -97,7 +97,7 @@
         <h1>Create Your Account</h1>
         <form method="post">
             {% csrf_token %}
-            
+            {{ form.as_p }}
             <div class="form-group">
                 <label for="id_username">Username</label>
                 <input type="text" id="id_username" name="username" required autofocus>

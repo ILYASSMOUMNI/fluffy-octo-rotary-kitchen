@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, EditProfileForm
 from django.contrib import messages
 
+from .models import Recipe
+
 # Register View
 def register_view(request):
     if request.method == 'POST':
@@ -59,5 +61,7 @@ def logout_view(request):
     return redirect('login')
 
 # Home View (public access)
+
 def home(request):
-    return render(request, 'users/home.html')
+    recipes = Recipe.objects.all()  # Fetch all recipes
+    return render(request, 'home.html', {'recipes': recipes})

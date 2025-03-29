@@ -8,7 +8,11 @@
 <ul>
     {% for recipe in recipes %}
         <li>
-            <a href="{% url 'recipe_detail' recipe.id %}">{{ recipe.name }}</a>
+            <a href="{% url 'recipe_detail' recipe.id %}">
+                {% if recipe.title %}{{ recipe.title }}
+                {% elif recipe.recipe_name %}{{ recipe.recipe_name }}
+                {% else %}Recipe #{{ recipe.id }}{% endif %}
+            </a>
         </li>
     {% empty %}
         <p>No recipes found in this category.</p>

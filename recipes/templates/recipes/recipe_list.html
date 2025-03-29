@@ -24,8 +24,10 @@
                             {{ recipe.description|truncatechars:80 }}
                         </p>
                         <div class="mt-auto">
-                            <a href="{% url 'recipe_edit' recipe.id %}" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="{% url 'recipe_delete' recipe.id %}" class="btn btn-danger btn-sm">Delete</a>
+                            {% if recipe.created_by == user %}
+                                <a href="{% url 'recipe_edit' recipe.id %}" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="{% url 'recipe_delete' recipe.id %}" class="btn btn-danger btn-sm">Delete</a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
