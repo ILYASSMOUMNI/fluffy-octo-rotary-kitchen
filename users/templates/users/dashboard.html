@@ -1,0 +1,91 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Left Side: User Dashboard Content -->
+        <div class="col-md-8">
+            <h2>Welcome, {{ user.username }}</h2>
+            <p class="lead">Your role: <strong>{{ user.get_role_display }}</strong></p>
+
+            {% if user.role == 'chef' %}
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h3>Chef's Dashboard</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>As a Chef, you can:</p>
+                        <ul>
+                            <li>Create and manage your recipes.</li>
+                            <li>Track your orders and update dish statuses.</li>
+                            <li>View customer reviews and ratings for your dishes.</li>
+                        </ul>
+                        
+                        <!-- Buttons for recipe management -->
+                        <a href="{% url 'recipe_add' %}" class="btn btn-success">Add New Recipe</a>
+                        <a href="{% url 'recipe_list' %}" class="btn btn-primary">Manage Recipes</a>
+                    </div>
+                </div>
+            {% elif user.role == 'amateur' %}
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h3>Amateur's Dashboard</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>As an Amateur, you can:</p>
+                        <ul>
+                            <li>Explore new recipes from our chefs.</li>
+                            <li>Save your favorite dishes and create shopping lists.</li>
+                            <li>Rate and comment on recipes you've tried.</li>
+                        </ul>
+                        <a href="#" class="btn btn-primary">Explore Recipes</a>
+                        <a href="#" class="btn btn-secondary">My Favorites</a>
+                    </div>
+                </div>
+            {% elif user.role == 'blogueur' %}
+                <div class="card">
+                    <div class="card-header bg-warning text-white">
+                        <h3>Blogueur's Dashboard</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>As a Blogueur, you can:</p>
+                        <ul>
+                            <li>Write and publish food blogs.</li>
+                            <li>Share your recipes and tips with your audience.</li>
+                            <li>Interact with readers through comments and feedback.</li>
+                        </ul>
+                        <a href="#" class="btn btn-primary">Write a New Blog</a>
+                        <a href="#" class="btn btn-info">View Comments</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Side: User Profile -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h4>Your Profile</h4>
+                </div>
+                <div class="card-body text-center">
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="rounded-circle mb-3" width="150">
+                    {% else %}
+                        <img src="https://via.placeholder.com/150" alt="Profile Picture" class="rounded-circle mb-3" width="150">
+                    {% endif %}
+                    <p>{{ user.bio|default:"No bio available." }}</p>
+                    <a href="{% url 'edit_profile' %}" class="btn btn-secondary">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Button -->
+    <div class="mt-4 text-center">
+        <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+    </div>
+</div>
+
+{% endblock %}

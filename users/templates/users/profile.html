@@ -1,0 +1,12 @@
+<h2>Welcome, {{ user.username }}!</h2>
+
+<p>Email: {{ user.email }}</p>
+<p>Role: {{ user.get_role_display }}</p>
+
+{% if user.profile_picture %}
+    <img src="{{ user.profile_picture.url }}" alt="Profile Picture" width="150">
+{% else %}
+    <p>No profile picture</p>
+{% endif %}
+
+<p><a href="{% url 'logout' %}">Logout</a></p>

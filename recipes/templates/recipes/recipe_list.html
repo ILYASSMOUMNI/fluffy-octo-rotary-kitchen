@@ -1,0 +1,31 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Manage Recipes{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Manage Your Recipes</h2>
+    <a href="{% url 'recipe_add' %}" class="btn btn-success mb-3">Add New Recipe</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for recipe in recipes %}
+                <tr>
+                    <td>{{ recipe.name }}</td>
+                    <td>{{ recipe.category }}</td>
+                    <td>
+                        <a href="{% url 'recipe_edit' recipe.id %}" class="btn btn-warning">Edit</a>
+                        <a href="{% url 'recipe_delete' recipe.id %}" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

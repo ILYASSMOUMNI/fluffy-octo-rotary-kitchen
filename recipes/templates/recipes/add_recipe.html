@@ -1,0 +1,189 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Add New Recipe{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h2 class="mb-0"><i class="fas fa-utensils me-2"></i>Create a New Recipe</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" class="recipe-form">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>There was a problem with your submission:</strong>
+                            <ul>
+                                {% for field, errors in form.errors.items %}
+                                    <li>{{ field }}: {{ errors|join:", " }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-8">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.title.id_for_label }}" class="form-label fw-bold">Recipe Title</label>
+                                    {{ form.title }}
+                                    {% if form.title.errors %}
+                                        <div class="text-danger">{{ form.title.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.category.id_for_label }}" class="form-label fw-bold">Category</label>
+                                    {{ form.category }}
+                                    {% if form.category.errors %}
+                                        <div class="text-danger">{{ form.category.errors }}</div>
+                                    {% endif %}
+                                    {% if not categories %}
+                                        <div class="alert alert-warning mt-2">
+                                            <strong>No categories available!</strong> Please create at least one category before adding a recipe.
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.image.id_for_label }}" class="form-label fw-bold">Recipe Image</label>
+                                    {{ form.image }}
+                                    <small class="text-muted">Upload a delicious image of your dish</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="{{ form.servings.id_for_label }}" class="form-label fw-bold">Servings</label>
+                                    {{ form.servings }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">Description</label>
+                            {{ form.description }}
+                            <small class="text-muted">Brief description of your recipe</small>
+                        </div>
+                        
+                        <!-- Ingredients Section -->
+                        <div class="form-group mb-3">
+                            <label for="{{ form.ingredients.id_for_label }}" class="form-label fw-bold">Ingredients</label>
+                            <div id="ingredients-list">
+                                <!-- Dynamic ingredient fields will be added here -->
+                                <div class="ingredient-item">
+                                    <input type="text" name="ingredients" class="form-control" placeholder="Enter an ingredient">
+                                    <button type="button" class="btn btn-danger btn-sm remove-ingredient">Remove</button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-sm" id="add-ingredient">Add Ingredient</button>
+                            <small class="text-muted">Enter the ingredients for your recipe (one per line)</small>
+                            {% if form.ingredients.errors %}
+                                <div class="text-danger">{{ form.ingredients.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="{{ form.instructions.id_for_label }}" class="form-label fw-bold">Instructions</label>
+                            {{ form.instructions }}
+                            <small class="text-muted">Explain each step clearly</small>
+                        </div>
+                        
+                        <div class="mt-4 d-flex justify-content-between">
+                            <a href="{% url 'recipe_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Back to Recipes
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save me-1"></i> Save Recipe
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom styles to enhance form fields */
+    .recipe-form input[type="text"],
+    .recipe-form input[type="number"],
+    .recipe-form select,
+    .recipe-form textarea {
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    .recipe-form input[type="text"]:focus,
+    .recipe-form input[type="number"]:focus,
+    .recipe-form select:focus,
+    .recipe-form textarea:focus {
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .recipe-form textarea {
+        min-height: 120px;
+    }
+    
+    .recipe-form select {
+        appearance: auto;
+    }
+    
+    /* Style for the multiple select field */
+    .recipe-form select[multiple] {
+        min-height: 150px;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ingredientsList = document.getElementById('ingredients-list');
+        const addIngredientButton = document.getElementById('add-ingredient');
+
+        // Function to add a new ingredient field
+        addIngredientButton.addEventListener('click', function () {
+            const newIngredientItem = document.createElement('div');
+            newIngredientItem.classList.add('ingredient-item');
+            
+            // Create a new input field for the ingredient
+            const inputElement = document.createElement('input');
+            inputElement.type = 'text';
+            inputElement.name = 'ingredients';
+            inputElement.classList.add('form-control');
+            inputElement.placeholder = 'Enter an ingredient';
+            
+            // Add the "Remove" button
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'remove-ingredient');
+            removeButton.textContent = 'Remove';
+            
+            removeButton.addEventListener('click', function () {
+                ingredientsList.removeChild(newIngredientItem);
+            });
+
+            // Append the new element
+            newIngredientItem.appendChild(inputElement);
+            newIngredientItem.appendChild(removeButton);
+            ingredientsList.appendChild(newIngredientItem);
+        });
+    });
+</script>
+
+{% endblock %}
