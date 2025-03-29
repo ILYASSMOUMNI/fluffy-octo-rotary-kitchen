@@ -1,6 +1,30 @@
 # fluffy-octo-rotary-kitchen
 Par Ismail Khdem
-just a test by zakaria
+READ THIS
+zakaria was here
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+run this before starting the project 
+ pip install django-widget-tweaks
+
+ note: 
+ i removed all the files and added mine here
+ configure your mysql database here in   fluffy-octo-rotary-kitchen\cooking_platform\settings.py
+ exactly here:
+ DATABASES = {
+   'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'cooking_db',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
+}
+and create it in mysql and run the migration using :
+python manage.py makemigrations 
+python manage.py migrate
+ps:some functionality are still not working and still in developement espicially in the add recipe and edit also note the you have to chose a chef as a role to be able to see the full functionality's of the recipe "add,edit..." 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ## Fonctionnalités Principales
 
