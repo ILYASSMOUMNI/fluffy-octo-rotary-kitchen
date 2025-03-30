@@ -13,7 +13,8 @@
     </div>
 
     <div class="row">
-        {% for recipe in recipes %}
+        {% if recipes %}
+            {% for recipe in recipes %}
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm">
                     {% if recipe.image %}
@@ -36,13 +37,14 @@
                     </div>
                 </div>
             </div>
-        {% empty %}
+            {% endfor %}
+        {% else %}
             <div class="col-12">
                 <div class="alert alert-info">
                     <p>No recipes found. <a href="{% url 'recipe_add' %}">Add your first recipe</a>!</p>
                 </div>
             </div>
-        {% endfor %}
+        {% endif %}
     </div>
 </div>
 {% endblock %}
