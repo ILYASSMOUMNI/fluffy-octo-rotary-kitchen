@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Recipe, Category, Ingredient
 from .forms import RecipeForm, CategoryForm, IngredientForm
 from django.contrib.auth.decorators import login_required
+import json
+
 
 @login_required
 def recipe_add(request):
@@ -11,16 +13,18 @@ def recipe_add(request):
             recipe = form.save(commit=False)
             recipe.created_by = request.user
             recipe.save()
-            form.save_m2m()  # Save ManyToMany relationships
-
-            # Handle new ingredients (if entered manually)
-            new_ingredients = request.POST.get('new_ingredients', '')
-            if new_ingredients:
-                ingredient_list = [ing.strip() for ing in new_ingredients.split(',') if ing.strip()]
-                for ing in ingredient_list:
-                    ingredient, created = Ingredient.objects.get_or_create(name=ing)
+            
+            # Process ingredients from JSON
+            ingredients_json = request.POST.get('ingredients_json')
+            if ingredients_json:
+                ingredients_data = json.loads(ingredients_json)
+                for item in ingredients_data:
+                    ingredient, created = Ingredient.objects.get_or_create(
+                        name=item['name'],
+                        defaults={'quantity': item.get('quantity', '')}
+                    )
                     recipe.ingredients.add(ingredient)
-
+            
             return redirect('recipe_list')
     else:
         form = RecipeForm()
@@ -31,7 +35,6 @@ def recipe_add(request):
         'categories': categories,
         'has_categories': categories.exists()
     })
-
 @login_required
 def recipe_edit(request, id):
     # Get the recipe object by its ID and ensure it belongs to the logged-in user

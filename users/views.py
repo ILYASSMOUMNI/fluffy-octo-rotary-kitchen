@@ -69,6 +69,8 @@ def home(request):
     # Or filter by category
     # recipes = Recipe.objects.filter(category__name='Breakfast')
     
-    return render(request, 'users/home.html', {
+    return render(request, "users/home.html", {
         'recipes': recipes
     })
+ 
+   
