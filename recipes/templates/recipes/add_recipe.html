@@ -134,8 +134,7 @@
                                     </div>
                                     
                                     <!-- Hidden field to store ingredients data -->
-                                    <input type="hidden" name="ingredients_json" id="ingredients-json">
-                                    {{ form.ingredients.as_hidden }}
+                                    <input type="hidden" name="ingredients_json" id="ingredients-json" value="">
                                 </div>
                             </div>
                         </div>
@@ -170,8 +169,7 @@
                                     </div>
                                     
                                     <!-- Hidden field to store instructions data -->
-                                    <input type="hidden" name="instructions_json" id="instructions-json">
-                                    {{ form.instructions.as_hidden }}
+                                    <input type="hidden" name="instructions_json" id="instructions-json" value="">
                                 </div>
                             </div>
                         </div>
@@ -384,14 +382,15 @@
         // Form validation
         const form = document.querySelector('.needs-validation');
         form.addEventListener('submit', function (event) {
+            // Prepare data before validation
+            prepareIngredientsData();
+            prepareInstructionsData();
+
             if (!form.checkValidity()) {
                 event.preventDefault();
                 event.stopPropagation();
-            } else {
-                // Prepare ingredient and instruction data for submission
-                prepareIngredientsData();
-                prepareInstructionsData();
             }
+            
             form.classList.add('was-validated');
         });
         
@@ -570,23 +569,13 @@
         }
         
         function updateIngredientsJson() {
-            ingredientsJson.value = JSON.stringify(ingredients);
-        }
-        
-        function prepareIngredientsData() {
             const formattedIngredients = ingredients.map(i => {
-                if (i.quantity) {
-                    return `${i.quantity} ${i.name}`;
-                }
-                return i.name;
-            }).join('\n');
-            
-            // Update the original ingredients field
-            const originalIngredientsField = document.querySelector('select[name="ingredients"]');
-            if (originalIngredientsField) {
-                // If it's a select, we might need to select appropriate options
-                // This depends on how your Django form is set up
-            }
+                return {
+                    name: i.name,
+                    quantity: i.quantity || ''
+                };
+            });
+            ingredientsJson.value = JSON.stringify(formattedIngredients);
         }
         
         // Instructions management
@@ -708,19 +697,12 @@
         }
         
         function updateInstructionsJson() {
-            instructionsJson.value = JSON.stringify(instructions);
-        }
-        
-        function prepareInstructionsData() {
-            const formattedInstructions = instructions.map((i, index) => {
-                return `${index + 1}. ${i.text}`;
-            }).join('\n\n');
-            
-            // Update the original instructions field
-            const originalInstructionsField = document.querySelector('textarea[name="instructions"]');
-            if (originalInstructionsField) {
-                originalInstructionsField.value = formattedInstructions;
-            }
+            const formattedInstructions = instructions.map(i => {
+                return {
+                    text: i.text
+                };
+            });
+            instructionsJson.value = JSON.stringify(formattedInstructions);
         }
         
         // Initialize drag and drop for ingredients list
@@ -752,8 +734,6 @@
                 e.preventDefault();
                 if (!draggedItem) return;
                 
-
-               
                 const items = Array.from(list.querySelectorAll(itemSelector));
                 if (items.length <= 1) return;
                 

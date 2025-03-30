@@ -20,7 +20,12 @@ class Recipe(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     description = models.TextField()
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)  # This should be a ForeignKey to Category
+    category = models.ForeignKey(
+        Category, 
+        on_delete=models.SET_NULL,  # If category is deleted, don't delete recipe
+        null=True,  # Allow null values
+        blank=True  # Allow blank in forms
+    )
     ingredients = models.ManyToManyField(Ingredient, related_name='recipes')
     servings = models.PositiveIntegerField(default=1)
     instructions = models.TextField()

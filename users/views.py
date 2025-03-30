@@ -3,7 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, EditProfileForm
 from django.contrib import messages
-from recipes.models import Recipe # CORRECT import for the Recipe model
+
+from .models import Recipe
 
 # Register View
 def register_view(request):
@@ -59,7 +60,15 @@ def logout_view(request):
     return redirect('login')
 
 # Home View (public access)
-
 def home(request):
-    recipes = Recipe.objects.all()  # Fetch all recipes
-    return render(request, 'home.html', {'recipes': recipes})
+    # Get most recent recipes
+    recipes = Recipe.objects.all().order_by('-id')[:6]  # Latest 6 recipes
+    
+    # Or filter by category
+    # recipes = Recipe.objects.filter(category__name='Breakfast')
+    
+    return render(request, "users/home.html", {
+        'recipes': recipes
+    })
+ 
+   
