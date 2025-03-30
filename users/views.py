@@ -3,8 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, EditProfileForm
 from django.contrib import messages
-
-from .models import Recipe
+from recipes.models import Recipe # CORRECT import for the Recipe model
 
 # Register View
 def register_view(request):
@@ -12,8 +11,8 @@ def register_view(request):
         form = RegisterForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Your account has been created successfully!')
-            return redirect('login')
+            messages.success(request, 'Registration successful! Please log in.')
+            return redirect('login')  # Make sure 'login' is the name of your login URL
     else:
         form = RegisterForm()
     return render(request, 'users/register.html', {'form': form})
@@ -52,7 +51,6 @@ def edit_profile_view(request):
         form = EditProfileForm(instance=request.user)
     
     return render(request, 'users/edit_profile.html', {'form': form})
-
 
 # Logout View
 def logout_view(request):

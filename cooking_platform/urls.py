@@ -21,9 +21,10 @@ from django.shortcuts import redirect
 from django.conf import settings
 from django.urls import path, include
 urlpatterns = [
-     path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
     path('', lambda request: redirect('login')),
     path('users/', include('django.contrib.auth.urls')),
-      path('recipes/', include('recipes.urls')),  # Recipe-related URLs
+    path('recipes/', include('recipes.urls')), 
+    path('ai/', include('ai_module.urls', namespace='ai_module')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

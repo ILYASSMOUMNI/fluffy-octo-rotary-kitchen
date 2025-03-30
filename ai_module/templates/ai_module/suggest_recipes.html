@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %} {# Not strictly needed here unless using specific static files #}
+
+{% block title %}Suggest Recipes by Ingredients{% endblock %}
+
+{% block content %}
+    <h1>What can I make?</h1>
+    <p>Enter the ingredients you have available, separated by commas.</p>
+
+    <form method="post" action="{% url 'ai_module:suggest_recipes' %}">
+        {% csrf_token %}
+        {{ form.as_p }} {# Renders the IngredientListForm fields as paragraphs #}
+        <button type="submit">Find Recipes</button>
+    </form>
+
+    <hr>
+
+    <h2>Suggestions</h2>
+    {% if suggestions %}
+        <ul>
+            {% for suggestion in suggestions %}
+                <li>
+                    {# Link to recipe detail view if you have one #}
+                    {# Replace 'recipes:detail' with your actual recipe detail URL name #}
+                     {% comment %} Assuming you have a Recipe detail view named 'detail' in 'recipes' app {% endcomment %}
+                     {% if suggestion.recipe_id %}
+                        <a href="#"> {# Replace # with {% url 'recipes:detail' suggestion.recipe_id %} #}
+                             <strong>{{ suggestion.recipe_name }}</strong>
+                        </a>
+                    {% else %}
+                         <strong>{{ suggestion.recipe_name }}</strong>
+                    {% endif %}
+
+                    (Score: {{ suggestion.score|floatformat:2 }})
+                    <br>
+                    <small>
+                        Matches: {{ suggestion.matched_count }} ingredients. Missing: {{ suggestion.missing_count }}
+                        {% if suggestion.missing_count > 0 %}
+                            (Missing: {{ suggestion.missing_ingredients|join:", " }})
+                        {% endif %}
+                    </small>
+                </li>
+            {% endfor %}
+        </ul>
+    {% elif request.method == 'POST' %}
+        <p>No recipes found matching your ingredients well enough. Try adding more ingredients!</p>
+    {% else %}
+        <p>Enter some ingredients above to get suggestions.</p>
+    {% endif %}
+{% endblock %}

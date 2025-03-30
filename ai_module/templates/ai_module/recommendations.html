@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %} {# Usually good practice, even if not used directly here #}
+
+{% block title %}Your Personalized Recommendations{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4 text-center display-5">Recipes Recommended For You</h1>
+
+    {% comment %} Display Django messages (e.g., errors from the view) {% endcomment %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if recommendations %}
+        <p class="lead text-center mb-4">Based on your preferences and activity, we think you might like these:</p>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"> {# Responsive grid: 1 col on xs, 2 on md, 3 on lg+ #}
+            {% for rec in recommendations %}
+            <div class="col">
+                <div class="card h-100 shadow-sm"> {# h-100 makes cards in the same row equal height #}
+                     {# Optional: Add image if available rec.recipe_image_url #}
+                     {# <img src="{{ rec.recipe_image_url|default_if_none:'#' }}" class="card-img-top" alt="{{ rec.recipe_name }}"> #}
+                    <div class="card-body d-flex flex-column"> {# Use flexbox to push elements #}
+                        <h5 class="card-title">
+                            {# --- IMPORTANT: Replace 'recipes:recipe_detail' with your actual recipe detail URL name --- #}
+                            {% if rec.recipe_id %}
+                                <a href="{% url 'recipes:recipe_detail' rec.recipe_id %}" class="text-decoration-none">
+                                    {{ rec.recipe_name|capfirst }}
+                                </a>
+                            {% else %}
+                                 {{ rec.recipe_name|capfirst }}
+                            {% endif %}
+                        </h5>
+
+                        {% if rec.reason %}
+                            <p class="card-text text-muted small mb-3">{{ rec.reason }}</p>
+                        {% endif %}
+
+                        {# Optional: Add other info like category or difficulty #}
+
+                        <div class="mt-auto pt-2"> {# Pushes the link/score to the bottom #}
+                            {# --- Link again, styled as a button --- #}
+                            {% if rec.recipe_id %}
+                                <a href="{% url 'recipes:recipe_detail' rec.recipe_id %}" class="btn btn-sm btn-outline-primary">View Recipe</a>
+                            {% endif %}
+
+                            {% comment %} Display score for debugging (optional) {% endcomment %}
+                            {% if request.user.is_staff or debug %} {# Only show to staff or if debug=True #}
+                                <span class="badge bg-secondary float-end">Score: {{ rec.score|floatformat:2 }}</span>
+                            {% endif %}
+                        </div>
+
+                    </div> {# End card-body #}
+                     {# Optional: Add card footer for actions like "Save" #}
+                     {# <div class="card-footer text-end">
+                         <button class="btn btn-sm btn-outline-success">Save</button>
+                     </div> #}
+                </div> {# End card #}
+            </div> {# End col #}
+            {% endfor %}
+        </div> {# End row #}
+
+    {% else %}
+        {# Nicer display for no recommendations #}
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="alert alert-info text-center" role="alert">
+                    <h4 class="alert-heading">No Recommendations Yet!</h4>
+                    <p>We're still getting to know your tastes. We need a bit more information to suggest recipes you'll love.</p>
+                    <hr>
+                    <p class="mb-0">
+                        Explore more recipes and let us know which ones you like!
+                        <br><br>
+                        {# --- IMPORTANT: Replace '#' with actual URLs --- #}
+                        <a href="{% url 'recipe_list' %}" class="btn btn-primary">Browse Recipes</a>
+                        <a href="#" class="btn btn-secondary ms-2">Update Preferences</a> {# Link to profile/settings page #}
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div> {# End container #}
+{% endblock %}
