@@ -3,6 +3,7 @@ from .models import Recipe, Category, Ingredient
 from .forms import RecipeForm, CategoryForm, IngredientForm
 from django.contrib.auth.decorators import login_required
 import json
+from django.db.models import Q
 
 
 
@@ -103,3 +104,26 @@ def category_list(request):
 def recipe_detail(request, id):
     recipe = get_object_or_404(Recipe, id=id)
     return render(request, 'recipes/recipe_detail.html', {'recipe': recipe})
+
+def recipe_search(request):
+    query = request.GET.get('q', '').strip()
+    results = Recipe.objects.all()
+    
+    if query:
+        # Initialize the search query
+        search_query = Q(title__icontains=query) | Q(description__icontains=query)
+        
+        # Only add category search if the query might match category names
+        if len(query) >= 2:  # Only search categories for queries of 2+ characters
+            search_query |= Q(category__name__icontains=query)
+        
+        # Add ingredient search
+        search_query |= Q(ingredients__name__icontains=query)
+        
+        results = results.filter(search_query).distinct()
+    
+    context = {
+        'recipes': results,
+        'query': query
+    }
+    return render(request, 'recipes/search_results.html', context)

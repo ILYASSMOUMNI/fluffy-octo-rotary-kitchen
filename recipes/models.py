@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-
+from django.utils import timezone
 class Category(models.Model):
     name = models.CharField(max_length=100)
     
@@ -19,6 +19,7 @@ class Ingredient(models.Model):
 class Recipe(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
+    created_at = models.DateTimeField(default=timezone.now)
     description = models.TextField()
     category = models.ForeignKey(
         Category, 
@@ -26,6 +27,10 @@ class Recipe(models.Model):
         null=True,  # Allow null values
         blank=True  # Allow blank in forms
     )
+    indexes = [
+            models.Index(fields=['title']),
+            models.Index(fields=['category']),
+        ]
     ingredients = models.ManyToManyField(Ingredient, related_name='recipes')
     servings = models.PositiveIntegerField(default=1)
     instructions = models.TextField()

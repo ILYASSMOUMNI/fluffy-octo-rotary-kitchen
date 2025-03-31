@@ -135,15 +135,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6"> {# Adjust column width as needed #}
 
-            {# Display Django messages first #}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
+            
 
             <div class="register-container"> {# Apply custom styles via this class #}
                 <h1>Create Your Account</h1>

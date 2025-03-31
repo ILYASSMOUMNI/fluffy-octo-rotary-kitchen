@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import recipe_search
 
 urlpatterns = [
     path('add/', views.recipe_add, name='recipe_add'),
@@ -9,4 +10,5 @@ urlpatterns = [
     path('categories/', views.category_list, name='category_list'),
     path('category/<int:id>/', views.recipe_by_category, name='recipe_by_category'),
     path('<int:id>/', views.recipe_detail, name='recipe_detail'),
+    path('search/', recipe_search, name='recipe_search'),
 ]

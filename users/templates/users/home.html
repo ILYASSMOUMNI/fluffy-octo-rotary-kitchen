@@ -157,14 +157,14 @@
         <p class="lead mb-5">Find and share your favorite culinary creations with our community</p>
         
         <div class="search-bar">
-            <div class="input-group">
-                <input type="text" class="form-control form-control-lg" placeholder="Search for recipes..." aria-label="Search for recipes">
-                <button class="btn btn-primary-custom" type="button">
+            <form method="GET" action="{% url 'recipe_search' %}" class="input-group">
+                <input type="text" name="q" class="form-control form-control-lg" placeholder="Search for recipes..." 
+                       aria-label="Search for recipes" value="{{ request.GET.q }}">
+                <button class="btn btn-primary-custom" type="submit">
                     <i class="fas fa-search me-2"></i> Search
                 </button>
-            </div>
+            </form>
         </div>
-    </div>
 </section>
 
 <!-- Latest Recipes Section -->
@@ -273,7 +273,7 @@
             <div class="col">
                 <div class="card h-100 featured-card">
                     <div class="card-img-container">
-                        <img src="{% static 'images/hot-chocolate.jpg' %}" class="card-img-top" alt="Hot Chocolate">
+                        <img src="{% static 'media/makla/hot-chocolate.jpg' %}" class="card-img-top" alt="Hot Chocolate">
                         <div class="category-badge text-white">Drinks</div>
                     </div>
                     <div class="card-body">

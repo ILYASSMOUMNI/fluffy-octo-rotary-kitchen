@@ -11,6 +11,7 @@
 
     <!-- ===== START CHAT WIDGET CSS ===== -->
     <style>
+        
         #chat-widget-icon {
             position: fixed;
             bottom: 25px;
@@ -164,17 +165,18 @@
             </button>
     
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0"> {# Added mb-2 mb-lg-0 for better spacing on collapse #}
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'dashboard' %}">Home</a>
-                        </li> {# Closing tag confirmed present #}
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'recipe_list' %}">Recipes</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'recipe_add' %}">Add Recipe</a>
                         </li>
+                    
                         {# AI Module Links #}
                         <li class="nav-item dropdown">
                              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -184,8 +186,6 @@
                                <li><a class="dropdown-item" href="{% url 'ai_module:suggest_recipes' %}">Suggest Recipes</a></li>
                                <li><a class="dropdown-item" href="{% url 'ai_module:identify_ingredients' %}">Identify Ingredients</a></li>
                                <li><a class="dropdown-item" href="{% url 'ai_module:recommendations' %}">My Recommendations</a></li>
-                               {# Add chatbot link here if needed, though widget is present #}
-                               {# <li><a class="dropdown-item" href="{% url 'ai_module:chatbot_page' %}">Recipe Chatbot</a></li> #}
                              </ul>
                         </li>
                     {% endif %}
@@ -193,6 +193,17 @@
                         <a class="nav-link" href="{% url 'category_list' %}">Categories</a>
                     </li>
                 </ul>
+    
+                <!-- Search Bar - Added to navbar -->
+                <form method="GET" action="{% url 'recipe_search' %}" class="d-flex my-2 my-lg-0 mx-lg-2">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Search recipes..." 
+                               aria-label="Search recipes" value="{{ request.GET.q }}">
+                        <button class="btn btn-primary-custom" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
     
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
@@ -205,10 +216,7 @@
                                 {{ user.username }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                {# Link to recommendations moved to AI Tools dropdown for grouping #}
-                                {# <li><a class="dropdown-item" href="{% url 'ai_module:recommendations' %}">My Recommendations</a></li> #}
-                                {# Add other user-specific links here if needed, e.g., Profile #}
-                                <li><a class="dropdown-item" href="{% url 'edit_profile'%} ">My Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'edit_profile'%}">My Profile</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
                             </ul>
@@ -218,7 +226,7 @@
                             <a class="nav-link" href="{% url 'login' %}">Login</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link btn btn-primary btn-sm px-3 ms-lg-2" href="{% url 'register' %}">Sign Up</a> {# Made Sign Up slightly more prominent #}
+                            <a class="nav-link btn btn-primary btn-sm px-3 ms-lg-2" href="{% url 'register' %}">Sign Up</a>
                         </li>
                     {% endif %}
                 </ul>
