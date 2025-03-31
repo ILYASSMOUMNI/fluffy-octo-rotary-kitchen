@@ -22,15 +22,51 @@
                         {% endif %}
 
                         {% for field in form %}
-                        <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                            {{ field.errors }}
-                            {{ field }}
-                            {% if field.help_text %}
-                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% if field.name != 'ingredients_json' and field.name != 'instructions_json' %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {{ field.errors }}
+                                {{ field }}
+                                {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                            </div>
                             {% endif %}
-                        </div>
                         {% endfor %}
+
+                        <!-- Ingredients Section -->
+                        <div class="mb-3">
+                            <label class="form-label">Ingredients</label>
+                            {% if form.ingredients_json.errors %}
+                            <div class="alert alert-danger">
+                                {{ form.ingredients_json.errors }}
+                            </div>
+                            {% endif %}
+                            <div id="ingredients-container" class="mb-2">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                            <button type="button" id="add-ingredient" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-plus-circle"></i> Add Ingredient
+                            </button>
+                            {{ form.ingredients_json }}
+                        </div>
+
+                        <!-- Instructions Section -->
+                        <div class="mb-3">
+                            <label class="form-label">Instructions</label>
+                            {% if form.instructions_json.errors %}
+                            <div class="alert alert-danger">
+                                {{ form.instructions_json.errors }}
+                            </div>
+                            {% endif %}
+                            <div id="instructions-container" class="mb-2">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                            <button type="button" id="add-instruction" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-plus-circle"></i> Add Step
+                            </button>
+                            {{ form.instructions_json }}
+                        </div>
 
                         <div class="d-flex justify-content-between">
                             <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -42,4 +78,127 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize ingredients from JSON
+    let ingredients = [];
+    try {
+        ingredients = JSON.parse('{{ ingredients_json|escapejs }}') || [];
+    } catch(e) {
+        console.error('Error parsing ingredients JSON:', e);
+    }
+    
+    // Initialize instructions from JSON
+    let instructions = [];
+    try {
+        instructions = JSON.parse('{{ instructions_json|escapejs }}') || [];
+    } catch(e) {
+        console.error('Error parsing instructions JSON:', e);
+    }
+    
+    // Ingredients handling
+    const ingredientsContainer = document.getElementById('ingredients-container');
+    const ingredientsJsonInput = document.getElementById('id_ingredients_json');
+    
+    function renderIngredients() {
+        ingredientsContainer.innerHTML = '';
+        ingredients.forEach((ing, index) => {
+            const row = document.createElement('div');
+            row.className = 'row mb-2';
+            row.innerHTML = `
+                <div class="col-4">
+                    <input type="text" class="form-control" value="${ing.quantity || ''}" placeholder="Quantity" 
+                           onchange="updateIngredient(${index}, 'quantity', this.value)">
+                </div>
+                <div class="col-6">
+                    <input type="text" class="form-control" value="${ing.name || ''}" placeholder="Ingredient" 
+                           onchange="updateIngredient(${index}, 'name', this.value)">
+                </div>
+                <div class="col-2">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeIngredient(${index})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            `;
+            ingredientsContainer.appendChild(row);
+        });
+        ingredientsJsonInput.value = JSON.stringify(ingredients);
+    }
+    
+    window.addIngredient = function() {
+        ingredients.push({ name: '', quantity: '' });
+        renderIngredients();
+    }
+    
+    window.updateIngredient = function(index, field, value) {
+        ingredients[index][field] = value;
+        ingredientsJsonInput.value = JSON.stringify(ingredients);
+    }
+    
+    window.removeIngredient = function(index) {
+        ingredients.splice(index, 1);
+        renderIngredients();
+    }
+    
+    document.getElementById('add-ingredient').addEventListener('click', addIngredient);
+    
+    // Instructions handling
+    const instructionsContainer = document.getElementById('instructions-container');
+    const instructionsJsonInput = document.getElementById('id_instructions_json');
+    
+    function renderInstructions() {
+        instructionsContainer.innerHTML = '';
+        instructions.forEach((inst, index) => {
+            const row = document.createElement('div');
+            row.className = 'row mb-2';
+            row.innerHTML = `
+                <div class="col-1 d-flex align-items-center justify-content-end">
+                    <span class="fw-bold">${index + 1}.</span>
+                </div>
+                <div class="col-9">
+                    <textarea class="form-control" placeholder="Instruction step" 
+                              onchange="updateInstruction(${index}, 'text', this.value)">${inst.text || ''}</textarea>
+                </div>
+                <div class="col-2">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeInstruction(${index})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            `;
+            instructionsContainer.appendChild(row);
+        });
+        instructionsJsonInput.value = JSON.stringify(instructions);
+    }
+    
+    window.addInstruction = function() {
+        instructions.push({ text: '' });
+        renderInstructions();
+    }
+    
+    window.updateInstruction = function(index, field, value) {
+        instructions[index][field] = value;
+        instructionsJsonInput.value = JSON.stringify(instructions);
+    }
+    
+    window.removeInstruction = function(index) {
+        instructions.splice(index, 1);
+        renderInstructions();
+    }
+    
+    document.getElementById('add-instruction').addEventListener('click', addInstruction);
+    
+    // Initialize the UI
+    renderIngredients();
+    renderInstructions();
+    
+    // If there are no ingredients or instructions, add one empty row for each
+    if (ingredients.length === 0) {
+        addIngredient();
+    }
+    if (instructions.length === 0) {
+        addInstruction();
+    }
+});
+</script>
 {% endblock %}
