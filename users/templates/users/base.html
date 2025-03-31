@@ -4,9 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> {# Added viewport for responsiveness #}
-    <title>{% block title %}Cooking Platform{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>{% block title %}Recipe App{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
     {# Removed duplicate head and bootstrap links (Verified) #}
 
     <!-- ===== START CHAT WIDGET CSS ===== -->
@@ -156,15 +160,17 @@
     {% block extra_head %}{% endblock %} {# Keep this block if child templates need extra head content #}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">🍳 My Recipe App</a>
-    
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="{% static 'images/logo.svg' %}" alt="Recipe App Logo" height="40">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-    
             <div class="collapse navbar-collapse" id="navbarNav">
+<<<<<<< HEAD
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
@@ -220,13 +226,32 @@
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
                             </ul>
+=======
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'category_list' %}">Categories</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'recipe_add' %}">Add Recipe</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'recipe_list' %}">My Recipes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+>>>>>>> 558d3fc85bbc159c8ac5fdcdf36616c0bac09ada
                         </li>
                     {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'login' %}">Login</a>
                         </li>
                         <li class="nav-item">
+<<<<<<< HEAD
                             <a class="nav-link btn btn-primary btn-sm px-3 ms-lg-2" href="{% url 'register' %}">Sign Up</a>
+=======
+                            <a class="nav-link" href="{% url 'register' %}">Register</a>
+>>>>>>> 558d3fc85bbc159c8ac5fdcdf36616c0bac09ada
                         </li>
                     {% endif %}
                 </ul>
@@ -234,13 +259,50 @@
         </div>
     </nav>
 
-
-    <main class="container mt-4 mb-5"> {# Added mb-5 for footer spacing if added later #}
-        {% block content %}
-        {# Default content if block is empty, or page-specific content goes here #}
-        {% endblock %}
+    <!-- Main Content -->
+    <main class="py-4">
+        {% block content %}{% endblock %}
     </main>
 
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <img src="{% static 'images/logo.svg' %}" alt="Recipe App Logo" height="40" class="mb-3">
+                    <p class="text-muted">Share your culinary journey with the world. Discover, create, and share amazing recipes.</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="mb-3">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'home' %}" class="text-light text-decoration-none">Home</a></li>
+                        <li><a href="{% url 'category_list' %}" class="text-light text-decoration-none">Categories</a></li>
+                        <li><a href="{% url 'recipe_list' %}" class="text-light text-decoration-none">All Recipes</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="mb-3">Connect With Us</h5>
+                    <div class="social-links">
+                        <a href="#" class="text-light me-3"><i class="fab fa-facebook-f fa-lg"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-pinterest fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="bg-light">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2024 Recipe App. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#" class="text-light text-decoration-none me-3">Privacy Policy</a>
+                    <a href="#" class="text-light text-decoration-none me-3">Terms of Service</a>
+                    <a href="#" class="text-light text-decoration-none">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <!-- ===== START CHAT WIDGET HTML ===== -->
     <div id="chat-widget-container">
@@ -274,9 +336,8 @@
     </div>
     <!-- ===== END CHAT WIDGET HTML ===== -->
 
-
-    <!-- Bootstrap Bundle JS (includes Popper) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- ===== START CHAT WIDGET JAVASCRIPT ===== -->
     <script>
@@ -405,6 +466,5 @@
     <!-- ===== END CHAT WIDGET JAVASCRIPT ===== -->
 
     {% block extra_scripts %}{% endblock %} {# Keep this block if child templates need extra scripts #}
-
 </body>
 </html>
