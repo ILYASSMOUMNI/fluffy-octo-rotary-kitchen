@@ -1,80 +1,307 @@
 {% extends 'users/base.html' %}
 {% load static %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Delicious Recipes | Cooking Platform{% endblock %}
 
-
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary-color: #FF6B6B;
+        --secondary-color: #FFDB63;
+        --dark-color: #2C2B2B;
+        --light-color: #F5F2F2;
+        --accent-color: #4ECDC4;
+    }
+    
+    .hero-section {
+        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{% static "images/hero-bg.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 100px 0;
+        margin-bottom: 50px;
+    }
+    
+    .recipe-card {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .recipe-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+    
+    .card-img-container {
+        height: 220px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .card-img-top {
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
+        transition: transform 0.5s ease;
+    }
+    
+    .recipe-card:hover .card-img-top {
+        transform: scale(1.1);
+    }
+    
+    .category-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 1;
+        background-color: var(--primary-color);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+    
+    .featured-card {
+        border: 3px solid var(--secondary-color);
+        transition: all 0.3s ease;
+    }
+    
+    .featured-card:hover {
+        border-color: var(--primary-color);
+    }
+    
+    .btn-primary-custom {
+        background-color: var(--primary-color);
+        border: none;
+        padding: 10px 25px;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary-custom:hover {
+        background-color: #e05555;
+        transform: translateY(-2px);
+    }
+    
+    .btn-secondary-custom {
+        background-color: var(--secondary-color);
+        color: var(--dark-color);
+        border: none;
+        padding: 10px 25px;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary-custom:hover {
+        background-color: #e6c44d;
+        color: var(--dark-color);
+        transform: translateY(-2px);
+    }
+    
+    .section-title {
+        position: relative;
+        margin-bottom: 50px;
+        font-weight: 700;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background-color: var(--primary-color);
+    }
+    
+    .search-bar {
+        max-width: 600px;
+        margin: 0 auto 50px;
+    }
+    
+    .empty-state {
+        padding: 80px 0;
+        text-align: center;
+    }
+    
+    .recipe-meta {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .recipe-meta i {
+        margin-right: 5px;
+        color: var(--primary-color);
+    }
+    
+    .featured-section {
+        background-color: var(--light-color);
+        padding: 60px 0;
+        margin: 60px 0;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">Latest Recipes</h2>
+<!-- Hero Section -->
+<section class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-4">Discover Amazing Recipes</h1>
+        <p class="lead mb-5">Find and share your favorite culinary creations with our community</p>
+        
+        <div class="search-bar">
+            <div class="input-group">
+                <input type="text" class="form-control form-control-lg" placeholder="Search for recipes..." aria-label="Search for recipes">
+                <button class="btn btn-primary-custom" type="button">
+                    <i class="fas fa-search me-2"></i> Search
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
 
-    <div class="row">
+<!-- Latest Recipes Section -->
+<div class="container mb-5">
+    <h2 class="section-title text-center">Latest Recipes</h2>
+    
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for recipe in recipes %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
+        <div class="col">
+            <div class="card h-100 recipe-card">
+                <div class="card-img-container">
                     {% if recipe.image %}
                         <img src="{{ recipe.image.url }}" class="card-img-top" alt="{{ recipe.title }}">
                     {% else %}
-                        <img src="https://via.placeholder.com/300x200?text=No+Image" class="card-img-top" alt="No Image">
+                        <img src="{% static 'images/default-recipe.jpg' %}" class="card-img-top" alt="No Image">
                     {% endif %}
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">{{ recipe.title }}</h5>
-                        <p class="card-text">
-                            <span class="badge bg-primary">{{ recipe.category }}</span><br>
-                            Servings: {{ recipe.servings }}<br>
-                            {{ recipe.description|truncatechars:80 }}
-                        </p>
-                        <div class="mt-auto">
-                            <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-primary btn-sm">View</a>
-                        </div>
+                    <span class="category-badge text-white">
+                        {{ recipe.category|default:"General" }}
+                    </span>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ recipe.title }}</h5>
+                    <div class="recipe-meta mb-3">
+                        <div><i class="fas fa-user-friends"></i> {{ recipe.servings }} servings</div>
+                        <div><i class="fas fa-clock"></i> {{ recipe.cooking_time }} mins</div>
+                        <div><i class="fas fa-star"></i> {{ recipe.difficulty|default:"Easy" }}</div>
+                    </div>
+                    <p class="card-text">{{ recipe.description|truncatechars:100|default:"No description provided" }}</p>
+                    <div class="mt-auto">
+                        <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-primary-custom">
+                            <i class="fas fa-utensils me-2"></i> View Recipe
+                        </a>
                     </div>
                 </div>
+                <div class="card-footer bg-transparent">
+                    <small class="text-muted">
+                        Added {{ recipe.created_at|timesince }} ago
+                    </small>
+                </div>
             </div>
+        </div>
         {% empty %}
-            <p>No recipes available yet.</p>
+        <div class="col-12 empty-state">
+            <i class="fas fa-utensils display-1 text-muted mb-4"></i>
+            <h3 class="mb-3">No Recipes Available Yet</h3>
+            <p class="lead mb-4">Be the first to share your recipe with our community!</p>
+            <a href="{% url 'recipe_add' %}" class="btn btn-primary-custom btn-lg">
+                <i class="fas fa-plus-circle me-2"></i> Add Your Recipe
+            </a>
+        </div>
         {% endfor %}
     </div>
 </div>
-<div class="container mt-5">
-    <h2 class="text-center mb-5" style="color: #2C2B2B; font-size: 38.90px; font-weight: 700;">Most searched recipes</h2>
-    
-    <div class="row justify-content-center">
-        <!-- Waffles Card -->
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <img src="{% static 'images/Featured_image.png' %}" class="card-img-top rounded-top" alt="Waffles">
-                <div class="card-body" style="background: #F5F2F2;">
-                    <h3 class="card-title" style="color: #2C2B2B; font-size: 32px; font-weight: 700;">Waffles</h3>
-                    <p class="card-text" style="color: #2C2B2B; font-size: 20.71px;">Nice recipe to enjoy with friends in the morning.</p>
-                    <a href="#" class="btn" style="background: #FFDB63; color: #2C2B2B; font-weight: 700; font-size: 20.71px; border-radius: 32px;">View recipe</a>
-                </div>
-            </div>
-        </div>
 
-        <!-- Pancakes Card -->
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <img src="{% static 'images/Featured_image.png' %}" class="card-img-top rounded-top" alt="Pancakes">
-                <div class="card-body" style="background: #F5F2F2;">
-                    <h3 class="card-title" style="color: #2C2B2B; font-size: 32px; font-weight: 700;">Pancakes</h3>
-                    <p class="card-text" style="color: #2C2B2B; font-size: 20.71px;">Nice recipe to enjoy with friends in the morning.</p>
-                    <a href="#" class="btn" style="background: #FFDB63; color: #2C2B2B; font-weight: 700; font-size: 20.71px; border-radius: 32px;">View recipe</a>
+<!-- Featured Recipes Section -->
+<section class="featured-section">
+    <div class="container">
+        <h2 class="section-title text-center">Most Popular Recipes</h2>
+        
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <!-- Waffles Card -->
+            <div class="col">
+                <div class="card h-100 featured-card">
+                    <div class="card-img-container">
+                        <img src="{% static 'images/waffles.jpg' %}" class="card-img-top" alt="Waffles">
+                        <div class="category-badge text-white">Breakfast</div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Fluffy Belgian Waffles</h3>
+                        <div class="recipe-meta mb-3">
+                            <div><i class="fas fa-user-friends"></i> 4 servings</div>
+                            <div><i class="fas fa-clock"></i> 25 mins</div>
+                            <div><i class="fas fa-star"></i> Medium</div>
+                        </div>
+                        <p class="card-text">Perfectly crisp outside and fluffy inside, these waffles will become your weekend favorite.</p>
+                        <a href="#" class="btn btn-secondary-custom">
+                            <i class="fas fa-book-open me-2"></i> View Recipe
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Hot chocolate Card -->
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <img src="https://placehold.co/403x212" class="card-img-top rounded-top" alt="Hot chocolate">
-                <div class="card-body" style="background: #F5F2F2;">
-                    <h3 class="card-title" style="color: #2C2B2B; font-size: 32px; font-weight: 700;">Hot chocolate</h3>
-                    <p class="card-text" style="color: #2C2B2B; font-size: 20.71px;">Nice recipe to enjoy with friends in the morning.</p>
-                    <a href="#" class="btn" style="background: #FFDB63; color: #2C2B2B; font-weight: 700; font-size: 20.71px; border-radius: 32px;">View recipe</a>
+            <!-- Pancakes Card -->
+            <div class="col">
+                <div class="card h-100 featured-card">
+                    <div class="card-img-container">
+                        <img src="{% static 'images/pancakes.jpg' %}" class="card-img-top" alt="Pancakes">
+                        <div class="category-badge text-white">Breakfast</div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Blueberry Pancakes</h3>
+                        <div class="recipe-meta mb-3">
+                            <div><i class="fas fa-user-friends"></i> 3 servings</div>
+                            <div><i class="fas fa-clock"></i> 20 mins</div>
+                            <div><i class="fas fa-star"></i> Easy</div>
+                        </div>
+                        <p class="card-text">Light and fluffy pancakes bursting with fresh blueberries and drizzled with maple syrup.</p>
+                        <a href="#" class="btn btn-secondary-custom">
+                            <i class="fas fa-book-open me-2"></i> View Recipe
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hot Chocolate Card -->
+            <div class="col">
+                <div class="card h-100 featured-card">
+                    <div class="card-img-container">
+                        <img src="{% static 'images/hot-chocolate.jpg' %}" class="card-img-top" alt="Hot Chocolate">
+                        <div class="category-badge text-white">Drinks</div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Gourmet Hot Chocolate</h3>
+                        <div class="recipe-meta mb-3">
+                            <div><i class="fas fa-user-friends"></i> 2 servings</div>
+                            <div><i class="fas fa-clock"></i> 10 mins</div>
+                            <div><i class="fas fa-star"></i> Easy</div>
+                        </div>
+                        <p class="card-text">Rich, creamy hot chocolate with a hint of cinnamon and topped with whipped cream.</p>
+                        <a href="#" class="btn btn-secondary-custom">
+                            <i class="fas fa-book-open me-2"></i> View Recipe
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<div class="container my-5 text-center">
+    <div class="p-5 bg-light rounded-3">
+        <h2 class="mb-4">Ready to Share Your Own Recipe?</h2>
+        <p class="lead mb-4">Join our community of food enthusiasts and share your culinary creations with the world.</p>
+        <a href="{% url 'recipe_add' %}" class="btn btn-primary-custom btn-lg">
+            <i class="fas fa-plus-circle me-2"></i> Add Your Recipe Now
+        </a>
     </div>
 </div>
 {% endblock %}

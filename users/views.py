@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, EditProfileForm
 from django.contrib import messages
-
+from recipes.models import Recipe
 from .models import Recipe
 
 # Register View

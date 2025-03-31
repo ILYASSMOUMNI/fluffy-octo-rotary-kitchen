@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 import json
 
 
+
 @login_required
 def recipe_add(request):
     if request.method == 'POST':
