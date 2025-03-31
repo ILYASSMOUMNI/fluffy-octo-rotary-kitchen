@@ -1,5 +1,6 @@
 import os
 import logging # Import logging
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
 from django.views.decorators.http import require_POST, require_GET
@@ -7,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.contrib import messages # Import Django messages framework
-
+from .services import chatbot
 from .forms import IngredientListForm, ImageUploadForm, ChatForm
 from .services import ingredient_matcher, recommender, image_recognizer, chatbot # Import your service functions
 
@@ -73,9 +74,8 @@ def personalized_recommendations_view(request):
 
 # --- View for Feature 3: Identify Ingredients from Image ---
 def identify_ingredients_view(request):
-    # Uses Django Messages Framework instead of explicit error_message context
-    identified_ingredients = None
-    form = ImageUploadForm() # Initialize for GET
+    identified_ingredients = None # Initialize as None
+    form = ImageUploadForm()
 
     if request.method == 'POST':
         form = ImageUploadForm(request.POST, request.FILES)
@@ -84,106 +84,149 @@ def identify_ingredients_view(request):
             fs = None
             filename = None
             image_path = None
+            suggestions = None # Initialize suggestions if you plan to use them
 
-            # Define storage location robustly - use default storage if MEDIA_ROOT is not set
-            # Or better: Use Django's default_storage if suitable
-            # from django.core.files.storage import default_storage
-            # filename = default_storage.save(f'ingredient_images/{image_file.name}', image_file)
-            # image_path = default_storage.path(filename)
-
-            # Using FileSystemStorage explicitly:
             try:
+                # --- File Saving ---
+                # Ensure MEDIA_ROOT is configured or handle appropriately
                 if not settings.MEDIA_ROOT:
-                     logger.warning("MEDIA_ROOT setting is not configured. Files may not be saved correctly.")
-                     # Consider falling back to a temporary directory or raising an error
-                     # raise ImproperlyConfigured("MEDIA_ROOT is not set.") # Or handle differently
+                     logger.error("MEDIA_ROOT setting is not configured. Cannot save uploaded image.")
+                     messages.error(request, "Server configuration error: Cannot process image uploads.")
+                     # Skip further processing if we can't save the file
+                     # Return here or set a flag to prevent service call
+                     # For simplicity, we'll let it proceed but log error later if path is None
 
+                # Using FileSystemStorage explicitly:
                 storage_location = os.path.join(settings.MEDIA_ROOT or '', 'ingredient_images')
-                os.makedirs(storage_location, exist_ok=True) # Ensure directory exists
-                fs = FileSystemStorage(location=storage_location)
-                filename = fs.save(image_file.name, image_file)
-                image_path = fs.path(filename)
-
-                # Call the image recognition service
-                identified_ingredients = image_recognizer.identify_ingredients_from_image(image_path)
-
-                if not identified_ingredients:
-                    messages.warning(request, "Could not identify specific ingredients. Try a clearer photo?")
+                # Check if storage_location is valid before creating dirs/storage
+                if storage_location:
+                     os.makedirs(storage_location, exist_ok=True) # Ensure directory exists
+                     fs = FileSystemStorage(location=storage_location)
+                     filename = fs.save(image_file.name, image_file) # This might raise errors too
+                     image_path = fs.path(filename)
+                     logger.info(f"Image saved temporarily to: {image_path}")
                 else:
-                    messages.success(request, "Successfully identified ingredients!")
-                    # Optional: Suggest recipes immediately (could make the response slower)
+                     # Handle case where MEDIA_ROOT wasn't set and we decided not to proceed
+                      raise ValueError("Image storage location could not be determined.")
+
+
+                # --- Call the image recognition service ---
+                # Ensure image_path is valid before calling
+                if image_path:
+                    identified_ingredients = image_recognizer.identify_ingredients_from_image(image_path)
+                else:
+                    # Should not happen if ValueError was raised, but as fallback
+                    logger.error("Image path was not set, skipping ingredient identification.")
+                    messages.error(request, "Could not save the image for analysis.")
+                    identified_ingredients = None # Explicitly set to None
+
+                # --- Handle Service Results ---
+                if identified_ingredients is None:
+                    # Service indicated an error occurred (logged within the service)
+                    messages.error(request, "Failed to analyze the image. Please check the image format or try again later.")
+                    # identified_ingredients is already None for the context
+                elif not identified_ingredients: # It's an empty list []
+                    # Service worked, model found no ingredients
+                    messages.warning(request, "Could not identify specific food ingredients in the photo. Try a clearer picture?")
+                    # identified_ingredients is already [] for the context
+                else: # It's a non-empty list
+                    # Success!
+                    ingredient_list_str = ", ".join(identified_ingredients)
+                    messages.success(request, f"Identified: {ingredient_list_str}")
+                    # identified_ingredients holds the list for the context
+
+                    # --- Optional: Suggest recipes based on identified ingredients ---
                     # try:
                     #     suggestions = ingredient_matcher.suggest_recipes_by_ingredients(identified_ingredients)
-                    #     context['suggestions'] = suggestions # Need to add 'suggestions' to context below
+                    #     # Add suggestions to context below if needed
+                    #     if suggestions:
+                    #          messages.info(request, "Found potential recipes based on identified ingredients.")
                     # except Exception as e_suggest:
                     #     logger.error(f"Error suggesting recipes after image ID {filename}: {e_suggest}")
-                    #     messages.info(request, "Identified ingredients, but couldn't fetch recipe suggestions right now.")
+                    #     messages.warning(request, "Identified ingredients, but couldn't fetch recipe suggestions right now.")
+                    # --- End Optional Suggestions ---
 
 
-            except (OSError, IOError) as e: # More specific file system errors
-                logger.error(f"File system error processing image {getattr(image_file, 'name', 'N/A')}: {e}", exc_info=True)
-                messages.error(request, f"A file system error occurred: {e}")
-            except Exception as e: # Catch-all for service errors or unexpected issues
-                logger.error(f"Error processing image {filename or getattr(image_file, 'name', 'N/A')}: {e}", exc_info=True)
-                messages.error(request, "An unexpected error occurred while processing the image.")
+            # --- Handle Specific Errors (File System / Other) ---
+            except (OSError, IOError, ValueError, TypeError) as e: # Catch file system, value, type errors
+                logger.error(f"Error processing image upload {getattr(image_file, 'name', 'N/A')}: {e}", exc_info=True)
+                messages.error(request, f"An error occurred processing the uploaded file: {e}")
+                identified_ingredients = None # Ensure it's None on error
+            except Exception as e: # Catch-all for truly unexpected issues in the view
+                logger.error(f"Unexpected error in identify_ingredients_view {filename or getattr(image_file, 'name', 'N/A')}: {e}", exc_info=True)
+                messages.error(request, "An unexpected internal error occurred.")
+                identified_ingredients = None # Ensure it's None on error
             finally:
                 # --- File Cleanup ---
-                # Delete the uploaded file if it exists and was saved, as it's likely temporary
-                if fs and filename and fs.exists(filename):
+                # Delete the uploaded file if it exists and was saved
+                if fs and filename and image_path and fs.exists(filename): # Check image_path too
                     try:
                         fs.delete(filename)
                         logger.info(f"Deleted temporary image file: {filename}")
                     except Exception as e_del:
+                        # Log deletion error but don't necessarily show to user
                         logger.error(f"Error deleting temporary image file {filename}: {e_del}", exc_info=True)
-        # No else needed for form invalid, errors handled by form rendering
+        else:
+             # Form is invalid
+             messages.error(request, "Invalid submission. Please check the form below.")
+             # identified_ingredients remains None
 
+    # Prepare context for template rendering
     context = {
         'form': form,
-        'identified_ingredients': identified_ingredients,
-        # 'suggestions': suggestions # Add if generating suggestions too
+        'identified_ingredients': identified_ingredients, # Will be None, [], or list[str]
+        # 'suggestions': suggestions # Uncomment if adding suggestions
     }
-    # Make sure your template iterates through {% messages %} tag:
-    # {% if messages %}
-    #   <ul class="messages">
-    #     {% for message in messages %}
-    #       <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    #     {% endfor %}
-    #   </ul>
-    # {% endif %}
     return render(request, 'ai_module/identify_ingredients.html', context)
 
 # --- View for Feature 4: Chatbot API ---
 @require_POST # This endpoint only accepts POST requests
 @login_required(login_url=settings.LOGIN_URL) # Optional: Force login for API too, redirects handled by JS/frontend
 def chatbot_api_view(request):
-    # Consider checking request.headers.get('x-requested-with') == 'XMLHttpRequest' for AJAX
-    if not request.is_ajax() and not 'application/json' in request.META.get('HTTP_ACCEPT', ''):
-         # Return error if not an AJAX or API-like request
-         return JsonResponse({'error': 'Invalid request type'}, status=400)
-
     try:
-        # Directly parse JSON body instead of relying on form for APIs
-        import json
         try:
             data = json.loads(request.body)
             message = data.get('message', '').strip()
         except json.JSONDecodeError:
+            logger.warning("Chatbot API received invalid JSON payload.")
             return JsonResponse({'error': 'Invalid JSON payload'}, status=400)
 
         if not message:
-             return JsonResponse({'error': 'Message cannot be empty'}, status=400)
+            logger.warning("Chatbot API received empty message.")
+            return JsonResponse({'error': 'Message cannot be empty'}, status=400)
 
-        user_id = request.user.id if request.user.is_authenticated else None # Use ID or None
-        session_key = request.session.session_key # Good identifier for anonymous or stateful chats
+        # --- Manage Chat History using Sessions (Gemini Format) ---
+        # Retrieve history (ensure it's stored in Gemini format)
+        chat_history_gemini_format = request.session.get('chat_history_gemini', [])
 
-        # Get response from the chatbot service function
-        response_text = chatbot.handle_chat_message(user_id=user_id, message=message, session_key=session_key) # Pass necessary identifiers
+        # --- Call the AI Chatbot Service ---
+        user_id = request.user.id if request.user.is_authenticated else None
+        session_key = request.session.session_key
 
+        # Pass the history in the format the service expects (now Gemini format)
+        response_text = chatbot.handle_chat_message(
+            user_id=user_id,
+            message=message,
+            session_key=session_key,
+            chat_history=chat_history_gemini_format
+        )
+
+        # --- Update History in Session (Gemini Format) ---
+        # Add user message
+        chat_history_gemini_format.append({'role': 'user', 'parts': [message]})
+        # Add model response
+        chat_history_gemini_format.append({'role': 'model', 'parts': [response_text]})
+
+        # Limit history length
+        max_history_items = 10 # Store last 5 user/model turns
+        request.session['chat_history_gemini'] = chat_history_gemini_format[-max_history_items:]
+        request.session.modified = True # Ensure session is saved
+
+        # --- Return Response ---
         return JsonResponse({'response': response_text})
 
     except Exception as e:
-        logger.error(f"Chatbot API error for user {request.user.id if request.user.is_authenticated else 'anonymous'}: {e}", exc_info=True)
-        # Don't expose detailed errors in production API responses
+        logger.error(f"Chatbot API view error: {e}", exc_info=True)
         return JsonResponse({'error': 'An internal error occurred in the chat service.'}, status=500)
 
 
