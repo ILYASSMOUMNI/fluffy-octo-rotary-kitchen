@@ -1,0 +1,40 @@
+/* Footer Styles */
+footer {
+    background-color: #2C2B2B;
+}
+
+footer .social-links a {
+    transition: color 0.3s ease;
+}
+
+footer .social-links a:hover {
+    color: #FFDB63 !important;
+}
+
+footer a {
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: #FFDB63 !important;
+}
+
+/* Logo Styles */
+.navbar-brand img {
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand img:hover {
+    transform: scale(1.05);
+}
+
+/* General Styles */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+} 

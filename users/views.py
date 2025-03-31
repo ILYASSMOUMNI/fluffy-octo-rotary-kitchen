@@ -3,8 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, EditProfileForm
 from django.contrib import messages
-
-from .models import Recipe
+from recipes.models import Recipe
 
 # Register View
 def register_view(request):
@@ -12,8 +11,8 @@ def register_view(request):
         form = RegisterForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Registration successful! Please log in.')
-            return redirect('login')  # Make sure 'login' is the name of your login URL
+            messages.success(request, 'Your account has been created successfully!')
+            return redirect('login')
     else:
         form = RegisterForm()
     return render(request, 'users/register.html', {'form': form})
@@ -36,6 +35,7 @@ def login_view(request):
 def dashboard_view(request):
     # Pass the user's role (chef, amateur, blogueur) to the template
     return render(request, 'users/dashboard.html', {'user': request.user})
+
 # Edit Profile View (only accessible when logged in)
 @login_required
 def edit_profile_view(request):
@@ -61,14 +61,7 @@ def logout_view(request):
 
 # Home View (public access)
 def home(request):
-    # Get most recent recipes
-    recipes = Recipe.objects.all().order_by('-id')[:6]  # Latest 6 recipes
-    
-    # Or filter by category
-    # recipes = Recipe.objects.filter(category__name='Breakfast')
-    
-    return render(request, "users/home.html", {
-        'recipes': recipes
-    })
+    recipes = Recipe.objects.all()[:6]  # Get latest 6 recipes
+    return render(request, 'users/home.html', {'recipes': recipes})
  
    
