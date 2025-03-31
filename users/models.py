@@ -1,6 +1,7 @@
 # users/models.py
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from recipes.models import Recipe
 # Remove: from django.shortcuts import render # Belongs in views
 
 # Import Recipe using its app path if needed for relationships

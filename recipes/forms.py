@@ -16,9 +16,9 @@ class RecipeForm(forms.ModelForm):
         instructions_json = cleaned_data.get('instructions_json')
         
         if not ingredients_json:
-            self.add_error('ingredients', 'This field is required.')
+            self.add_error('ingredients_json', 'Ingredients are required.')
         if not instructions_json:
-            self.add_error('instructions', 'This field is required.')
+            self.add_error('instructions_json', 'Instructions are required.')
             
         return cleaned_data
         
@@ -27,11 +27,17 @@ class RecipeForm(forms.ModelForm):
         
         # Process ingredients
         ingredients_json = self.cleaned_data.get('ingredients_json')
-        if ingredients_json:
+        if ingredients_json and commit:
+            # Clear existing ingredients to avoid duplicates
+            instance.ingredients.clear()
+            
             ingredients_data = json.loads(ingredients_json)
-            instance.instructions = "\n".join(
-                [f"{item['quantity']} {item['name']}" for item in ingredients_data]
-            )
+            for item in ingredients_data:
+                ingredient, created = Ingredient.objects.get_or_create(
+                    name=item['name'],
+                    defaults={'quantity': item.get('quantity', '')}
+                )
+                instance.ingredients.add(ingredient)
         
         # Process instructions
         instructions_json = self.cleaned_data.get('instructions_json')
@@ -43,7 +49,6 @@ class RecipeForm(forms.ModelForm):
         
         if commit:
             instance.save()
-            self.save_m2m()
             
         return instance
 
@@ -60,10 +65,3 @@ class IngredientForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'quantity': forms.TextInput(attrs={'class': 'form-control'})
         }
-   
-def clean_ingredients(self):
-        ingredients = self.cleaned_data.get('ingredients')
-        if ingredients:
-            # Ensure ingredients are split by commas and strip extra spaces
-            return [ingredient.strip() for ingredient in ingredients.split(',')]
-        return []

@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 import json
 
 
+
 @login_required
 def recipe_add(request):
     if request.method == 'POST':
@@ -37,18 +38,39 @@ def recipe_add(request):
     })
 @login_required
 def recipe_edit(request, id):
-    # Get the recipe object by its ID and ensure it belongs to the logged-in user
     recipe = get_object_or_404(Recipe, id=id, created_by=request.user)
 
     if request.method == 'POST':
         form = RecipeForm(request.POST, request.FILES, instance=recipe)
         if form.is_valid():
-            form.save()
-            return redirect('recipe_list')  # Redirect to the recipe list after saving
+            recipe = form.save()
+            
+            # Process ingredients from JSON - similar to recipe_add
+            ingredients_json = request.POST.get('ingredients_json')
+            if ingredients_json:
+                # Clear existing ingredients first to avoid duplicates
+                recipe.ingredients.clear()
+                
+                ingredients_data = json.loads(ingredients_json)
+                for item in ingredients_data:
+                    ingredient, created = Ingredient.objects.get_or_create(
+                        name=item['name'],
+                        defaults={'quantity': item.get('quantity', '')}
+                    )
+                    recipe.ingredients.add(ingredient)
+            
+            return redirect('recipe_list')
     else:
         form = RecipeForm(instance=recipe)
 
-    return render(request, 'recipes/recipe_edit.html', {'form': form, 'recipe': recipe})
+    # Pass current ingredients to the template for displaying in the form
+    ingredients = recipe.ingredients.all()
+    
+    return render(request, 'recipes/recipe_edit.html', {
+        'form': form, 
+        'recipe': recipe,
+        'ingredients': ingredients
+    })
 
 @login_required
 def recipe_delete(request, id):

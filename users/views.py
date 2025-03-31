@@ -4,6 +4,10 @@ from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, EditProfileForm
 from django.contrib import messages
 from recipes.models import Recipe
+<<<<<<< HEAD
+=======
+from .models import Recipe
+>>>>>>> 71f3d70f859bf005a6a612ab8cb43a872c3acfcd
 
 # Register View
 def register_view(request):
