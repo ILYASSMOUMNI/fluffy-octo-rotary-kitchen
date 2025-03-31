@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
+from dotenv import load_dotenv
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -82,7 +83,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'cooking_db',
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': '',
         'HOST': 'localhost',
         'PORT': '3306',
     }
@@ -136,3 +137,10 @@ AUTH_USER_MODEL = 'users.User'
 # Add these settings to the bottom of your settings.py file
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(os.path.join(BASE_DIR, '.env')) # Load .env file
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY') # Add this line
+
+if not GOOGLE_API_KEY:
+     print("WARNING: GOOGLE_API_KEY environment variable not set. AI Chatbot features using Gemini will be disabled.")
