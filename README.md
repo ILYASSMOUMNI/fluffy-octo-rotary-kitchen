@@ -1,5 +1,20 @@
 # fluffy-octo-rotary-kitchen
-Par Ismail Khdem..............
+if not pushed please follow the steps 
+khss tpushi lmain machi smail !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# 1. First push your smail branch (to preserve work)
+git push origin smail
+
+# 2. Switch to main branch
+git checkout main
+
+# 3. Get latest main branch changes
+git pull origin main
+
+# 4. Merge your smail branch into main
+git merge smail
+
+# 5. Push the merged changes
+git push origin main
 READ THIS
 zakaria was here
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
