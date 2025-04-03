@@ -193,17 +193,16 @@
                         <a class="nav-link" href="{% url 'category_list' %}">Categories</a>
                     </li>
                 </ul>
-    
-                <!-- Search Bar - Added to navbar -->
-                <form method="GET" action="{% url 'recipe_search' %}" class="d-flex my-2 my-lg-0 mx-lg-2">
-                    <div class="input-group">
-                        <input type="text" name="q" class="form-control" placeholder="Search recipes..." 
-                               aria-label="Search recipes" value="{{ request.GET.q }}">
-                        <button class="btn btn-primary-custom" type="submit">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </form>
+    <!-- Search Bar - Styled to match navbar elements -->
+    <form method="GET" action="{% url 'recipe_search' %}" class="d-flex align-items-center mx-lg-2">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control form-control-sm" placeholder="Search recipes..." 
+                   aria-label="Search recipes" value="{{ request.GET.q }}">
+            <button class="btn btn-outline-light btn-sm" type="submit">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
+    </form>
     
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
