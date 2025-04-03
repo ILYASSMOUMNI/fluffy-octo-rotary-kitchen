@@ -25,7 +25,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
-            return redirect('dashboard')
+            return redirect('home')
         else:
             messages.error(request, 'Invalid username or password')
     return render(request, 'users/login.html')
@@ -47,7 +47,7 @@ def edit_profile_view(request):
             
             form.save()
             messages.success(request, 'Your profile has been updated!')
-            return redirect('dashboard')  # Redirect to dashboard after success
+            return redirect('home')  # Redirect to dashboard after success
     else:
         form = EditProfileForm(instance=request.user)
     

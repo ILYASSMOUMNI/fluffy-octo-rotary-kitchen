@@ -44,9 +44,9 @@ def recipe_edit(request, id):
     if request.method == 'POST':
         form = RecipeForm(request.POST, request.FILES, instance=recipe)
         if form.is_valid():
-            recipe = form.save()
+            recipe = form.save(commit=False)
             
-            # Process ingredients from JSON - similar to recipe_add
+            # Process ingredients from JSON
             ingredients_json = request.POST.get('ingredients_json')
             if ingredients_json:
                 # Clear existing ingredients first to avoid duplicates
@@ -60,19 +60,43 @@ def recipe_edit(request, id):
                     )
                     recipe.ingredients.add(ingredient)
             
+            # Process instructions from JSON - convert JSON to text for storage
+            instructions_json = request.POST.get('instructions_json')
+            if instructions_json:
+                # Parse the JSON array of instruction steps
+                instructions_data = json.loads(instructions_json)
+                
+                # Convert to text format: each step on its own line
+                instructions_text = "\n".join([step['text'] for step in instructions_data if 'text' in step])
+                
+                # Save the instructions text to the model
+                recipe.instructions = instructions_text
+            
+            recipe.save()
             return redirect('recipe_list')
     else:
         form = RecipeForm(instance=recipe)
 
-    # Pass current ingredients to the template for displaying in the form
+    # Get current ingredients and format them as JSON
     ingredients = recipe.ingredients.all()
+    ingredients_json = json.dumps([
+        {'name': ing.name, 'quantity': ing.quantity} 
+        for ing in ingredients
+    ])
+    
+    # Convert instructions text field to JSON format for the form
+    # Split text by lines and create a JSON array of instruction steps
+    instructions_text = recipe.instructions or ""
+    instructions_data = [{'text': step.strip()} for step in instructions_text.split('\n') if step.strip()]
+    instructions_json = json.dumps(instructions_data)
     
     return render(request, 'recipes/recipe_edit.html', {
         'form': form, 
         'recipe': recipe,
-        'ingredients': ingredients
+        'ingredients': ingredients,
+        'ingredients_json': ingredients_json,
+        'instructions_json': instructions_json
     })
-
 @login_required
 def recipe_delete(request, id):
     # Get the recipe object by its ID and ensure it belongs to the logged-in user

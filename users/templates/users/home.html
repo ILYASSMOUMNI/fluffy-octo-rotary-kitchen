@@ -15,12 +15,13 @@
     }
     
     .hero-section {
-        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{% static "images/hero-bg.jpg" %}');
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
         background-size: cover;
         background-position: center;
         color: white;
         padding: 100px 0;
         margin-bottom: 50px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
     }
     
     .recipe-card {
@@ -273,7 +274,7 @@
             <div class="col">
                 <div class="card h-100 featured-card">
                     <div class="card-img-container">
-                        <img src="{% static 'media/makla/hot-chocolate.jpg' %}" class="card-img-top" alt="Hot Chocolate">
+                        <img src="{% static 'images/hot-chocolate.jpg' %}" class="card-img-top" alt="Hot Chocolate">
                         <div class="category-badge text-white">Drinks</div>
                     </div>
                     <div class="card-body">
@@ -299,9 +300,15 @@
     <div class="p-5 bg-light rounded-3">
         <h2 class="mb-4">Ready to Share Your Own Recipe?</h2>
         <p class="lead mb-4">Join our community of food enthusiasts and share your culinary creations with the world.</p>
-        <a href="{% url 'recipe_add' %}" class="btn btn-primary-custom btn-lg">
+        {% if user.is_authenticated %}
+            <a href="{% url 'recipe_add' %}" class="btn btn-primary-custom btn-lg">
             <i class="fas fa-plus-circle me-2"></i> Add Your Recipe Now
-        </a>
+            </a>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn btn-primary-custom btn-lg">
+            <i class="fas fa-sign-in-alt me-2"></i> Log In to Add Your Recipe
+            </a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
