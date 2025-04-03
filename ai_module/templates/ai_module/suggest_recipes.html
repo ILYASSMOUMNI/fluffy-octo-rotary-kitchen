@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'users/base.html' %}
 {% load static %} {# Not strictly needed here unless using specific static files #}
 
 {% block title %}Suggest Recipes by Ingredients{% endblock %}
@@ -24,14 +24,12 @@
                     {# Replace 'recipes:detail' with your actual recipe detail URL name #}
                      {% comment %} Assuming you have a Recipe detail view named 'detail' in 'recipes' app {% endcomment %}
                      {% if suggestion.recipe_id %}
-                        <a href="#"> {# Replace # with {% url 'recipes:detail' suggestion.recipe_id %} #}
+                        <a href="{% url 'recipe_detail' suggestion.recipe_id %}"> {# Replace # with {% url 'recipes:detail' suggestion.recipe_id %} #}
                              <strong>{{ suggestion.recipe_name }}</strong>
                         </a>
                     {% else %}
                          <strong>{{ suggestion.recipe_name }}</strong>
                     {% endif %}
-
-                    (Score: {{ suggestion.score|floatformat:2 }})
                     <br>
                     <small>
                         Matches: {{ suggestion.matched_count }} ingredients. Missing: {{ suggestion.missing_count }}

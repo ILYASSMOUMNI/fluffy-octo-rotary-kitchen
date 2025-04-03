@@ -1,63 +1,61 @@
-# ai_module/services/ingredient_matcher.py
+from django.db.models import Count, Q
 from recipes.models import Recipe, Ingredient
 
-def suggest_recipes_by_ingredients(available_ingredient_names: list[str], max_suggestions: int = 5) -> list[dict]:
-    """Suggests recipes based on available ingredients using Django ORM."""
-    available_set = set(name.lower().strip() for name in available_ingredient_names)
-    
-    # Fetch potentially relevant ingredients from DB (optimization possible)
-    # This is simple but might be slow for large DBs. Consider pre-filtering.
-    all_recipes = Recipe.objects.prefetch_related('ingredients').all() 
-    
-    suggestions = []
+def suggest_recipes_by_ingredients(user_ingredients: list[str], min_matches=1) -> list[dict]:
+    """
+    Find recipes that match the provided ingredients
+    Returns simplified results without scores
+    """
+    # Normalize user ingredients
+    user_ingredients = [ing.strip().lower() for ing in user_ingredients if ing.strip()]
+    if not user_ingredients:
+        return []
 
-    for recipe in all_recipes:
-        required_ingredients = recipe.ingredients.all() # Get related Ingredient objects
-        required_set = set(ing.name.lower().strip() for ing in required_ingredients)
+    # Build matching conditions
+    conditions = Q()
+    for ing in user_ingredients:
+        conditions |= Q(ingredients__name__icontains=ing)
+        if ing.endswith('s'):
+            conditions |= Q(ingredients__name__icontains=ing[:-1])  # Try singular
+        else:
+            conditions |= Q(ingredients__name__icontains=ing + 's')  # Try plural
 
-        if not required_set:
-            continue
+    # Find matching recipes
+    recipes = (
+        Recipe.objects
+        .prefetch_related('ingredients')
+        .filter(conditions)
+        .annotate(
+            match_count=Count('ingredients', filter=conditions),
+            total_ingredients=Count('ingredients')
+        )
+        .filter(match_count__gte=min_matches)
+        .distinct()
+    )
 
-        matched_ingredients_objs = [ing for ing in required_ingredients if ing.name.lower() in available_set]
-        matched_ingredients_names = set(ing.name.lower() for ing in matched_ingredients_objs)
+    # Prepare simplified results
+    results = []
+    for recipe in recipes:
+        recipe_ings = {ing.name.lower(): ing for ing in recipe.ingredients.all()}
         
-        missing_ingredients_names = required_set.difference(matched_ingredients_names)
+        matched = []
+        missing = []
+        
+        for ing_name, ing_obj in recipe_ings.items():
+            if any(user_ing in ing_name or ing_name.startswith(user_ing) 
+               for user_ing in user_ingredients):
+                matched.append(f"{ing_obj.name} ({ing_obj.quantity})")
+            else:
+                missing.append(f"{ing_obj.name} ({ing_obj.quantity})")
 
-        if len(matched_ingredients_names) > 0:
-            match_score = len(matched_ingredients_names) / len(required_set)
-            score = match_score * (1 / (1 + len(missing_ingredients_names)))
+        results.append({
+            'recipe_id': recipe.id,
+            'recipe_name': recipe.title,
+            'matched_count': len(matched),
+            'missing_count': len(missing),
+            'missing_ingredients': missing,
+            'image_url': recipe.image.url if recipe.image else None,
+        })
 
-            suggestions.append({
-                "recipe_id": recipe.id,
-                "recipe_name": recipe.name,
-                "score": score,
-                "matched_count": len(matched_ingredients_names),
-                "missing_count": len(missing_ingredients_names),
-                "missing_ingredients": list(missing_ingredients_names),
-            })
-
-    suggestions.sort(key=lambda x: x["score"], reverse=True)
-    return suggestions[:max_suggestions]
-
-# --- Adapt recommender.py similarly, fetching UserProfile ---
-# from users.models import UserProfile
-# def get_personalized_recommendations(user: User, max_recommendations: int = 5) -> list[dict]:
-#    try:
-#        profile = user.profile # Access UserProfile via related_name
-#        # Use profile.liked_recipes, profile.disliked_ingredients, etc.
-#        # Query Recipe model based on preferences...
-#    except UserProfile.DoesNotExist:
-#        # Handle case where user has no profile
-#        return [] # Or return popular recipes
-#    # ... rest of logic ...
-
-
-# --- Adapt image_recognizer.py ---
-# Needs secure handling of API keys from settings.py
-# from django.conf import settings
-# GOOGLE_VISION_API_KEY = settings.GOOGLE_VISION_API_KEY
-# (Rest of the function is similar, taking image_path as input)
-
-# --- Adapt chatbot.py ---
-# Will likely call other service functions like suggest_recipes_by_ingredients
-# Needs state management (Django sessions, database, or external store)
+    # Sort by most matched ingredients first, then fewest missing
+    return sorted(results, key=lambda x: (-x['matched_count'], x['missing_count']))
