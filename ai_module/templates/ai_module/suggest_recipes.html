@@ -1,48 +1,355 @@
 {% extends 'users/base.html' %}
-{% load static %} {# Not strictly needed here unless using specific static files #}
+{% load static %}
 
 {% block title %}Suggest Recipes by Ingredients{% endblock %}
 
 {% block content %}
-    <h1>What can I make?</h1>
-    <p>Enter the ingredients you have available, separated by commas.</p>
+<style>
+    /* Base Styles */
+    .suggestions-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-    <form method="post" action="{% url 'ai_module:suggest_recipes' %}">
-        {% csrf_token %}
-        {{ form.as_p }} {# Renders the IngredientListForm fields as paragraphs #}
-        <button type="submit">Find Recipes</button>
-    </form>
+    .hero-section {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 20px 0;
+    }
 
-    <hr>
+    .hero-title {
+        font-size: 2.5rem;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
 
-    <h2>Suggestions</h2>
+    .hero-subtitle {
+        font-size: 1.2rem;
+        color: #7f8c8d;
+    }
+
+    /* Search Card */
+    .search-card {
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 40px;
+    }
+
+    .ingredient-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .form-hint {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+
+    #id_ingredients {
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+
+    #id_ingredients:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-secondary {
+        background-color: #f8f9fa;
+        color: #2c3e50;
+        border: 1px solid #ddd;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-secondary:hover {
+        background-color: #e9ecef;
+        border-color: #ced4da;
+    }
+
+    /* Results Section */
+    .results-section {
+        margin-top: 30px;
+    }
+
+    .results-title {
+        font-size: 1.8rem;
+        color: #2c3e50;
+        margin-bottom: 25px;
+        text-align: center;
+    }
+
+    /* Recipe Grid */
+    .recipe-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+    }
+
+    .recipe-card {
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .recipe-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .recipe-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .recipe-image {
+        height: 180px;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: rgba(0, 0, 0, 0.2);
+    }
+
+    .recipe-content {
+        padding: 20px;
+    }
+
+    .recipe-name {
+        font-size: 1.2rem;
+        margin: 0 0 12px 0;
+        color: #2c3e50;
+    }
+
+    .recipe-meta {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .match-badge {
+        background-color: #e3f2fd;
+        color: #1976d2;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .missing-badge {
+        background-color: #ffebee;
+        color: #d32f2f;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .missing-ingredients {
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 8px;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-top: 30px;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        color: #bdc3c7;
+        margin-bottom: 20px;
+    }
+
+    .empty-state h3 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .empty-state p {
+        color: #7f8c8d;
+        max-width: 500px;
+        margin: 0 auto 20px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2rem;
+        }
+        
+        .recipe-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="suggestions-container">
+    <div class="hero-section">
+        <h1 class="hero-title">What can I make with my ingredients?</h1>
+        <p class="hero-subtitle">Enter what you have available and discover delicious recipes</p>
+    </div>
+
+    <div class="search-card">
+        <form method="post" action="{% url 'ai_module:suggest_recipes' %}" class="ingredient-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.ingredients.id_for_label }}" class="form-label">
+                    <i class="fas fa-carrot"></i> Your Ingredients:
+                </label>
+                {{ form.ingredients }}
+                <small class="form-hint">Separate ingredients by commas (e.g., chicken, rice, tomatoes)</small>
+            </div>
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-search"></i> Find Recipes
+            </button>
+        </form>
+    </div>
+
     {% if suggestions %}
-        <ul>
+    <div class="results-section">
+        <h2 class="results-title">We found {{ suggestions|length }} recipe{{ suggestions|pluralize }} for you</h2>
+        
+        <div class="recipe-grid">
             {% for suggestion in suggestions %}
-                <li>
-                    {# Link to recipe detail view if you have one #}
-                    {# Replace 'recipes:detail' with your actual recipe detail URL name #}
-                     {% comment %} Assuming you have a Recipe detail view named 'detail' in 'recipes' app {% endcomment %}
-                     {% if suggestion.recipe_id %}
-                        <a href="{% url 'recipe_detail' suggestion.recipe_id %}"> {# Replace # with {% url 'recipes:detail' suggestion.recipe_id %} #}
-                             <strong>{{ suggestion.recipe_name }}</strong>
-                        </a>
-                    {% else %}
-                         <strong>{{ suggestion.recipe_name }}</strong>
-                    {% endif %}
-                    <br>
-                    <small>
-                        Matches: {{ suggestion.matched_count }} ingredients. Missing: {{ suggestion.missing_count }}
+            <div class="recipe-card">
+                {% if suggestion.recipe_id %}
+                <a href="{% url 'recipe_detail' suggestion.recipe_id %}" class="recipe-link">
+                {% endif %}
+                    <div class="recipe-image">
+                        <div class="image-placeholder" style="background-color: {% cycle '#FFE8D6' '#DDEEFF' '#E8F5E9' '#F3E5F5' as cardcolors %}">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                    </div>
+                    <div class="recipe-content">
+                        <h3 class="recipe-name">{{ suggestion.recipe_name }}</h3>
+                        <div class="recipe-meta">
+                            <span class="match-badge">
+                                <i class="fas fa-check-circle"></i> {{ suggestion.matched_count }} matches
+                            </span>
+                            {% if suggestion.missing_count > 0 %}
+                            <span class="missing-badge">
+                                <i class="fas fa-exclamation-circle"></i> {{ suggestion.missing_count }} missing
+                            </span>
+                            {% endif %}
+                        </div>
                         {% if suggestion.missing_count > 0 %}
-                            (Missing: {{ suggestion.missing_ingredients|join:", " }})
+                        <div class="missing-ingredients">
+                            <small>Missing: {{ suggestion.missing_ingredients|join:", "|truncatewords:5 }}</small>
+                        </div>
                         {% endif %}
-                    </small>
-                </li>
+                    </div>
+                {% if suggestion.recipe_id %}
+                </a>
+                {% endif %}
+            </div>
             {% endfor %}
-        </ul>
+        </div>
+    </div>
     {% elif request.method == 'POST' %}
-        <p>No recipes found matching your ingredients well enough. Try adding more ingredients!</p>
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="fas fa-search"></i>
+        </div>
+        <h3>No recipes found</h3>
+        <p>We couldn't find recipes matching your ingredients well enough. Try adding more ingredients or being less specific.</p>
+        <button onclick="document.querySelector('.ingredient-form').scrollIntoView()" class="btn-secondary">
+            <i class="fas fa-edit"></i> Try Again
+        </button>
+    </div>
     {% else %}
-        <p>Enter some ingredients above to get suggestions.</p>
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="fas fa-clipboard-list"></i>
+        </div>
+        <h3>Ready to cook?</h3>
+        <p>Enter the ingredients you have available above to discover recipes you can make right now.</p>
+    </div>
     {% endif %}
+</div>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<script>
+    // Auto-focus the ingredients input when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const ingredientsInput = document.getElementById('{{ form.ingredients.id_for_label }}');
+        if (ingredientsInput) {
+            ingredientsInput.focus();
+        }
+        
+        // Add chips/tags style functionality if desired
+        // Could enhance the ingredients input to show entered items as tags
+    });
+</script>
 {% endblock %}

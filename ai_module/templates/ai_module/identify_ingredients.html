@@ -1,108 +1,303 @@
 {% extends 'users/base.html' %}
-{% load static %} {# Load static if you use custom CSS/JS later #}
+{% load static %}
 
 {% block title %}Identify Ingredients from Photo{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6"> {# Limit width for better readability #}
+<style>
+    /* Base Styles */
+    .ingredient-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-            <h1 class="mb-3 text-center display-5">Identify Ingredients</h1>
-            <p class="lead text-center mb-4">Upload a picture of your ingredients, and we'll try to identify them.</p>
+    .hero-section {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 20px 0;
+    }
 
-            {# Error Message Area #}
-            {% if error_message %}
-                <div class="alert alert-danger" role="alert">
-                    <strong>Error:</strong> {{ error_message }}
+    .hero-title {
+        font-size: 2.2rem;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+        color: #7f8c8d;
+    }
+
+    /* Card Styles */
+    .upload-card {
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 40px;
+    }
+
+    .card-header {
+        background: transparent;
+        border-bottom: 1px solid #eee;
+        padding: 0 0 15px 0;
+        margin-bottom: 20px;
+    }
+
+    .card-header h5 {
+        font-size: 1.3rem;
+        color: #2c3e50;
+        margin: 0;
+    }
+
+    /* Form Styles */
+    .upload-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .form-control {
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+
+    .form-text {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+
+    /* Buttons */
+    .btn {
+        border: none;
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-success {
+        background-color: #2ecc71;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #27ae60;
+    }
+
+    /* Results Section */
+    .results-card {
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+    }
+
+    .ingredient-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 20px 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+    }
+
+    .ingredient-item {
+        background: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .ingredient-item::before {
+        content: "•";
+        color: #3498db;
+        font-weight: bold;
+    }
+
+    /* Alerts */
+    .alert {
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+    }
+
+    .alert-danger {
+        background-color: #ffebee;
+        color: #d32f2f;
+        border-left: 4px solid #d32f2f;
+    }
+
+    .alert-warning {
+        background-color: #fff8e1;
+        color: #ff8f00;
+        border-left: 4px solid #ff8f00;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 1.8rem;
+        }
+        
+        .ingredient-list {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="ingredient-container">
+    <div class="hero-section">
+        <h1 class="hero-title">Identify Ingredients from Photo</h1>
+        <p class="hero-subtitle">Upload a picture of your ingredients and we'll identify them automatically</p>
+    </div>
+
+    <!-- Error Messages -->
+    {% if error_message %}
+        <div class="alert alert-danger" role="alert">
+            <strong>Error:</strong> {{ error_message }}
+        </div>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+            {% for error in form.non_field_errors %}
+                {{ error }}<br>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Upload Card -->
+    <div class="upload-card">
+        <div class="card-header">
+            <h5>Upload Your Photo</h5>
+        </div>
+        <form method="post" enctype="multipart/form-data" action="{% url 'ai_module:identify_ingredients' %}" class="upload-form">
+            {% csrf_token %}
+            
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}" class="form-label">
+                    <i class="fas fa-camera"></i> {{ field.label }}
+                </label>
+                {{ field }}
+                {% if field.help_text %}
+                    <div id="{{ field.id_for_label }}_help" class="form-text">{{ field.help_text }}</div>
+                {% endif %}
+                {% if field.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in field.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-cloud-upload-alt"></i> Upload and Identify
+            </button>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    {% if identified_ingredients is not None %}
+    <div class="results-card">
+        <div class="card-header">
+            <h5>Identified Ingredients</h5>
+        </div>
+        <div class="card-body">
+            {% if identified_ingredients %}
+                <p>We found these ingredients in your photo:</p>
+                <ul class="ingredient-list">
+                    {% for ingredient in identified_ingredients %}
+                        <li class="ingredient-item">{{ ingredient|capfirst }}</li>
+                    {% endfor %}
+                </ul>
+
+                <!-- Find Recipes Button -->
+                <form action="{% url 'ai_module:suggest_recipes' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="ingredients" value="{{ identified_ingredients|join:',' }}">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-utensils"></i> Find Recipes with These Ingredients
+                    </button>
+                </form>
+            {% else %}
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> Could not identify any specific ingredients. Please try a clearer picture.
                 </div>
             {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
 
-             {# Form Validation Errors (Non-field specific) #}
-             {% if form.non_field_errors %}
-                 <div class="alert alert-danger" role="alert">
-                     {% for error in form.non_field_errors %}
-                         {{ error }}<br>
-                     {% endfor %}
-                 </div>
-             {% endif %}
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-            {# Upload Form Card #}
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">Upload Your Photo</h5>
-                </div>
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" action="{% url 'ai_module:identify_ingredients' %}">
-                        {% csrf_token %}
-
-                        {# Render the form field(s) manually for better control #}
-                        {% for field in form %}
-                        <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                            {{ field }} {# Assumes widget has 'form-control' class added in forms.py #}
-                            {% if field.help_text %}
-                                <div id="{{ field.id_for_label }}_help" class="form-text text-muted">{{ field.help_text }}</div>
-                            {% endif %}
-                            {% if field.errors %}
-                                <div class="invalid-feedback d-block"> {# Use d-block to show errors #}
-                                    {% for error in field.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-
-                        <div class="d-grid"> {# Make button full width within card body #}
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-arrow-up-fill me-2" viewBox="0 0 16 16">
-                                  <path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/>
-                                </svg>
-                                Upload and Identify
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            {# Results Section #}
-            {% if identified_ingredients is not None %}
-            <div class="card shadow-sm mt-4">
-                <div class="card-header">
-                     <h5 class="mb-0">Identified Ingredients</h5>
-                </div>
-                <div class="card-body">
-                    {% if identified_ingredients %}
-                        <p>We found the following ingredients:</p>
-                        <ul class="list-group list-group-flush mb-3">
-                            {% for ingredient in identified_ingredients %}
-                                <li class="list-group-item">{{ ingredient|capfirst }}</li>
-                            {% endfor %}
-                        </ul>
-
-                        {# "Find Recipes" Button Form #}
-                        <form action="{% url 'ai_module:suggest_recipes' %}" method="post" class="d-grid">
-                             {% csrf_token %}
-                             {# Join list items into a comma-separated string for the hidden input #}
-                             <input type="hidden" name="ingredients" value="{{ identified_ingredients|join:',' }}">
-                             <button type="submit" class="btn btn-success">
-                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search me-2" viewBox="0 0 16 16">
-                                   <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                                 </svg>
-                                 Find Recipes with These Ingredients
-                            </button>
-                        </form>
-                    {% else %}
-                         <div class="alert alert-warning mb-0" role="alert">
-                             Could not identify any specific ingredients. Please try a clearer picture or ensure ingredients are distinct.
-                         </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %} {# End check for identified_ingredients existence #}
-
-        </div> {# End col #}
-    </div> {# End row #}
-</div> {# End container #}
+<script>
+    // Auto-focus the file input when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput) {
+            // Don't focus file inputs automatically as it triggers file dialog
+            // fileInput.focus();
+        }
+        
+        // Preview image before upload
+        const imageInput = document.getElementById('{{ form.image.id_for_label }}');
+        if (imageInput) {
+            imageInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        // Could add image preview functionality here
+                    }
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}
