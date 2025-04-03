@@ -300,9 +300,15 @@
     <div class="p-5 bg-light rounded-3">
         <h2 class="mb-4">Ready to Share Your Own Recipe?</h2>
         <p class="lead mb-4">Join our community of food enthusiasts and share your culinary creations with the world.</p>
-        <a href="{% url 'recipe_add' %}" class="btn btn-primary-custom btn-lg">
+        {% if user.is_authenticated %}
+            <a href="{% url 'recipe_add' %}" class="btn btn-primary-custom btn-lg">
             <i class="fas fa-plus-circle me-2"></i> Add Your Recipe Now
-        </a>
+            </a>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn btn-primary-custom btn-lg">
+            <i class="fas fa-sign-in-alt me-2"></i> Log In to Add Your Recipe
+            </a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
