@@ -54,22 +54,32 @@ def recipe_edit(request, id):
                 
                 ingredients_data = json.loads(ingredients_json)
                 for item in ingredients_data:
-                    ingredient, created = Ingredient.objects.get_or_create(
-                        name=item['name'],
-                        defaults={'quantity': item.get('quantity', '')}
-                    )
+                    # Get or create the ingredient, but handle potential duplicates
+                    try:
+                        ingredient = Ingredient.objects.get(
+                            name=item['name'],
+                            quantity=item.get('quantity', '')
+                        )
+                    except Ingredient.DoesNotExist:
+                        # If it doesn't exist, create it
+                        ingredient = Ingredient.objects.create(
+                            name=item['name'],
+                            quantity=item.get('quantity', '')
+                        )
+                    except Ingredient.MultipleObjectsReturned:
+                        # If there are duplicates, get the first one
+                        ingredient = Ingredient.objects.filter(
+                            name=item['name'],
+                            quantity=item.get('quantity', '')
+                        ).first()
+                    
                     recipe.ingredients.add(ingredient)
             
-            # Process instructions from JSON - convert JSON to text for storage
+            # Process instructions from JSON
             instructions_json = request.POST.get('instructions_json')
             if instructions_json:
-                # Parse the JSON array of instruction steps
                 instructions_data = json.loads(instructions_json)
-                
-                # Convert to text format: each step on its own line
                 instructions_text = "\n".join([step['text'] for step in instructions_data if 'text' in step])
-                
-                # Save the instructions text to the model
                 recipe.instructions = instructions_text
             
             recipe.save()
@@ -78,14 +88,12 @@ def recipe_edit(request, id):
         form = RecipeForm(instance=recipe)
 
     # Get current ingredients and format them as JSON
-    ingredients = recipe.ingredients.all()
+    ingredients = recipe.ingredients.all().distinct()  # Add distinct() to avoid duplicates
     ingredients_json = json.dumps([
         {'name': ing.name, 'quantity': ing.quantity} 
         for ing in ingredients
     ])
     
-    # Convert instructions text field to JSON format for the form
-    # Split text by lines and create a JSON array of instruction steps
     instructions_text = recipe.instructions or ""
     instructions_data = [{'text': step.strip()} for step in instructions_text.split('\n') if step.strip()]
     instructions_json = json.dumps(instructions_data)
