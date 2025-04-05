@@ -3,57 +3,322 @@
 
 {% block title %}{{ recipe.title }}{% endblock %}
 
-{% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card shadow">
-                {% if recipe.image %}
-                    <img src="{{ recipe.image.url }}" class="card-img-top" alt="{{ recipe.title }}" style="height: 400px; object-fit: cover;">
-                {% else %}
-                    <img src="{% static 'images/default-recipe.jpg' %}" class="card-img-top" alt="Default Recipe Image" style="height: 400px; object-fit: cover;">
-                {% endif %}
-                <div class="card-body">
-                    <h1 class="card-title">{{ recipe.title }}</h1>
-                    <div class="mb-3">
-                        <span class="badge bg-primary">{{ recipe.category.name }}</span>
-                        <span class="badge bg-secondary">Servings: {{ recipe.servings }}</span>
-                    </div>
-                    
-                    <h4>Description</h4>
-                    <p class="card-text">{{ recipe.description }}</p>
+{% block extra_head %}
+<style>
+:root {
+    --primary-color: #FF6B6B;
+    --primary-light: #FF8E8E;
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --medium-gray: #e9ecef;
+    --dark-gray: #495057;
+    --text-color: #2d3436;
+}
 
-                    <h4>Ingredients</h4>
-                    <ul class="list-group mb-3">
+.recipe-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.recipe-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.recipe-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.recipe-meta {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.recipe-badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.category-badge {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.servings-badge {
+    background-color: var(--medium-gray);
+    color: var(--text-color);
+}
+
+.recipe-content {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+}
+
+.recipe-main {
+    background-color: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.recipe-image {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+}
+
+.recipe-body {
+    padding: 2rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-title i {
+    color: var(--primary-color);
+}
+
+.recipe-description {
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.ingredients-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2rem;
+}
+
+.ingredient-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+.ingredient-item:last-child {
+    border-bottom: none;
+}
+
+.ingredient-name {
+    font-weight: 500;
+}
+
+.instructions-content {
+    white-space: pre-line;
+    line-height: 1.8;
+}
+
+.recipe-sidebar {
+    background-color: var(--white);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    height: fit-content;
+}
+
+.sidebar-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sidebar-title i {
+    color: var(--primary-color);
+}
+
+.details-list {
+    list-style: none;
+    padding: 0;
+}
+
+.detail-item {
+    display: flex;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 500;
+    min-width: 100px;
+    color: var(--dark-gray);
+}
+
+.recipe-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.edit-btn {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.edit-btn:hover {
+    background-color: rgba(255, 193, 7, 0.2);
+}
+
+.delete-btn {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.delete-btn:hover {
+    background-color: rgba(220, 53, 69, 0.2);
+}
+
+@media (max-width: 900px) {
+    .recipe-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .recipe-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .recipe-meta {
+        flex-wrap: wrap;
+    }
+    
+    .recipe-actions {
+        flex-direction: column;
+    }
+    
+    .action-btn {
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="recipe-detail-container">
+    <div class="recipe-content">
+        <div class="recipe-main">
+            {% if recipe.image %}
+                <img src="{{ recipe.image.url }}" class="recipe-image" alt="{{ recipe.title }}">
+            {% else %}
+                <img src="{% static 'images/default-recipe.jpg' %}" class="recipe-image" alt="Default Recipe Image">
+            {% endif %}
+            
+            <div class="recipe-body">
+                <div class="recipe-header">
+                    <div>
+                        <h1 class="recipe-title">{{ recipe.title }}</h1>
+                        <div class="recipe-meta">
+                            <span class="recipe-badge category-badge">
+                                {{ recipe.category.name }}
+                            </span>
+                            <span class="recipe-badge servings-badge">
+                                <i class="fas fa-user-friends"></i> {{ recipe.servings }} servings
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="recipe-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-align-left"></i> Description
+                    </h3>
+                    <p class="recipe-description">{{ recipe.description }}</p>
+                </div>
+                
+                <div class="recipe-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-carrot"></i> Ingredients
+                    </h3>
+                    <ul class="ingredients-list">
                         {% for ingredient in recipe.ingredients.all %}
-                            <li class="list-group-item">{{ ingredient.name }} - {{ ingredient.quantity }}</li>
+                        <li class="ingredient-item">
+                            <span class="ingredient-name">{{ ingredient.name }}</span>
+                            <span class="ingredient-quantity">{{ ingredient.quantity }}</span>
+                        </li>
                         {% endfor %}
                     </ul>
-
-                    <h4>Instructions</h4>
-                    <p class="card-text">{{ recipe.instructions|linebreaks }}</p>
-
-                    {% if recipe.created_by == user %}
-                    <div class="mt-4">
-                        <a href="{% url 'recipe_edit' recipe.id %}" class="btn btn-warning">Edit Recipe</a>
-                        <a href="{% url 'recipe_delete' recipe.id %}" class="btn btn-danger">Delete Recipe</a>
-                    </div>
-                    {% endif %}
                 </div>
+                
+                <div class="recipe-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-list-ol"></i> Instructions
+                    </h3>
+                    <div class="instructions-content">
+                        {{ recipe.instructions }}
+                    </div>
+                </div>
+                
+                {% if recipe.created_by == user %}
+                <div class="recipe-actions">
+                    <a href="{% url 'recipe_edit' recipe.id %}" class="action-btn edit-btn">
+                        <i class="fas fa-edit"></i> Edit Recipe
+                    </a>
+                    <a href="{% url 'recipe_delete' recipe.id %}" class="action-btn delete-btn">
+                        <i class="fas fa-trash-alt"></i> Delete Recipe
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
         
-        <div class="col-md-4">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h4>Recipe Details</h4>
-                    <ul class="list-unstyled">
-                        <li><strong>Created by:</strong> {{ recipe.created_by.username }}</li>
-                        <li><strong>Category:</strong> {{ recipe.category.name }}</li>
-                        <li><strong>Servings:</strong> {{ recipe.servings }}</li>
-                    </ul>
-                </div>
-            </div>
+        <div class="recipe-sidebar">
+            <h3 class="sidebar-title">
+                <i class="fas fa-info-circle"></i> Recipe Details
+            </h3>
+            <ul class="details-list">
+                <li class="detail-item">
+                    <span class="detail-label">Created by:</span>
+                    <span>{{ recipe.created_by.username }}</span>
+                </li>
+                <li class="detail-item">
+                    <span class="detail-label">Category:</span>
+                    <span>{{ recipe.category.name }}</span>
+                </li>
+                <li class="detail-item">
+                    <span class="detail-label">Servings:</span>
+                    <span>{{ recipe.servings }}</span>
+                </li>
+            </ul>
         </div>
     </div>
 </div>

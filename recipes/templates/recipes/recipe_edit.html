@@ -4,27 +4,27 @@
 {% block title %}Edit Recipe{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Edit Recipe</h3>
+        <div class="col-lg-9">
+            <div class="card shadow-lg border-0 rounded-3 overflow-hidden">
+                <div class="card-header" style="background-color: #FF6B6B; color: white;">
+                    <h3 class="mb-0 fw-bold">Edit Recipe</h3>
                 </div>
-                <div class="card-body">
+                <div class="card-body bg-light p-4">
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         
                         {% if form.errors %}
-                        <div class="alert alert-danger">
-                            Please correct the errors below.
+                        <div class="alert alert-danger rounded-3 border-0 shadow-sm">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>Please correct the errors below.
                         </div>
                         {% endif %}
 
                         {% for field in form %}
                             {% if field.name != 'ingredients_json' and field.name != 'instructions_json' %}
-                            <div class="mb-3">
-                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            <div class="mb-4">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
                                 {{ field.errors }}
                                 {{ field }}
                                 {% if field.help_text %}
@@ -35,42 +35,50 @@
                         {% endfor %}
 
                         <!-- Ingredients Section -->
-                        <div class="mb-3">
-                            <label class="form-label">Ingredients</label>
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <label class="form-label fw-bold mb-0">Ingredients</label>
+                                <button type="button" id="add-ingredient" class="btn btn-sm" style="background-color: #FF6B6B; color: white;">
+                                    <i class="bi bi-plus-circle me-1"></i> Add Ingredient
+                                </button>
+                            </div>
                             {% if form.ingredients_json.errors %}
-                            <div class="alert alert-danger">
+                            <div class="alert alert-danger rounded-3 border-0 shadow-sm">
                                 {{ form.ingredients_json.errors }}
                             </div>
                             {% endif %}
-                            <div id="ingredients-container" class="mb-2">
+                            <div id="ingredients-container" class="mb-2 bg-white p-3 rounded-3 shadow-sm">
                                 <!-- Will be populated by JavaScript -->
                             </div>
-                            <button type="button" id="add-ingredient" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-plus-circle"></i> Add Ingredient
-                            </button>
                             {{ form.ingredients_json }}
                         </div>
 
                         <!-- Instructions Section -->
-                        <div class="mb-3">
-                            <label class="form-label">Instructions</label>
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <label class="form-label fw-bold mb-0">Instructions</label>
+                                <button type="button" id="add-instruction" class="btn btn-sm" style="background-color: #FF6B6B; color: white;">
+                                    <i class="bi bi-plus-circle me-1"></i> Add Step
+                                </button>
+                            </div>
                             {% if form.instructions_json.errors %}
-                            <div class="alert alert-danger">
+                            <div class="alert alert-danger rounded-3 border-0 shadow-sm">
                                 {{ form.instructions_json.errors }}
                             </div>
                             {% endif %}
-                            <div id="instructions-container" class="mb-2">
+                            <div id="instructions-container" class="mb-2 bg-white p-3 rounded-3 shadow-sm">
                                 <!-- Will be populated by JavaScript -->
                             </div>
-                            <button type="button" id="add-instruction" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-plus-circle"></i> Add Step
-                            </button>
                             {{ form.instructions_json }}
                         </div>
 
-                        <div class="d-flex justify-content-between">
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                            <a href="{% url 'recipe_list' %}" class="btn btn-secondary">Cancel</a>
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="submit" class="btn btn-lg px-4" style="background-color: #FF6B6B; color: white;">
+                                <i class="bi bi-save me-2"></i>Save Changes
+                            </button>
+                            <a href="{% url 'recipe_list' %}" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -78,6 +86,38 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Custom styling for form elements */
+.form-control:focus, .form-select:focus {
+    border-color: #FF6B6B;
+    box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
+}
+
+/* Custom styling for ingredient and instruction items */
+#ingredients-container .row, #instructions-container .row {
+    border-left: 3px solid #FF6B6B;
+    padding: 8px;
+    margin-bottom: 12px !important;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+#ingredients-container .row:hover, #instructions-container .row:hover {
+    background-color: rgba(255, 107, 107, 0.05);
+}
+
+/* Make delete buttons more subtle until hover */
+.btn-outline-danger {
+    border-color: #FF6B6B;
+    color: #FF6B6B;
+}
+
+.btn-outline-danger:hover {
+    background-color: #FF6B6B;
+    border-color: #FF6B6B;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -103,26 +143,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function renderIngredients() {
         ingredientsContainer.innerHTML = '';
-        ingredients.forEach((ing, index) => {
-            const row = document.createElement('div');
-            row.className = 'row mb-2';
-            row.innerHTML = `
-                <div class="col-4">
-                    <input type="text" class="form-control" value="${ing.quantity || ''}" placeholder="Quantity" 
-                           onchange="updateIngredient(${index}, 'quantity', this.value)">
-                </div>
-                <div class="col-6">
-                    <input type="text" class="form-control" value="${ing.name || ''}" placeholder="Ingredient" 
-                           onchange="updateIngredient(${index}, 'name', this.value)">
-                </div>
-                <div class="col-2">
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeIngredient(${index})">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </div>
-            `;
-            ingredientsContainer.appendChild(row);
-        });
+        if (ingredients.length === 0) {
+            ingredientsContainer.innerHTML = '<p class="text-muted text-center py-3"><i class="bi bi-emoji-neutral me-2"></i>No ingredients added yet</p>';
+        } else {
+            ingredients.forEach((ing, index) => {
+                const row = document.createElement('div');
+                row.className = 'row align-items-center mb-2 bg-white';
+                row.innerHTML = `
+                    <div class="col-4">
+                        <input type="text" class="form-control" value="${ing.quantity || ''}" placeholder="Quantity" 
+                               onchange="updateIngredient(${index}, 'quantity', this.value)">
+                    </div>
+                    <div class="col-7">
+                        <input type="text" class="form-control" value="${ing.name || ''}" placeholder="Ingredient" 
+                               onchange="updateIngredient(${index}, 'name', this.value)">
+                    </div>
+                    <div class="col-1 text-center">
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" onclick="removeIngredient(${index})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                `;
+                ingredientsContainer.appendChild(row);
+            });
+        }
         ingredientsJsonInput.value = JSON.stringify(ingredients);
     }
     
@@ -137,8 +181,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     window.removeIngredient = function(index) {
-        ingredients.splice(index, 1);
-        renderIngredients();
+        if (confirm('Are you sure you want to remove this ingredient?')) {
+            ingredients.splice(index, 1);
+            renderIngredients();
+        }
     }
     
     document.getElementById('add-ingredient').addEventListener('click', addIngredient);
@@ -149,25 +195,29 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function renderInstructions() {
         instructionsContainer.innerHTML = '';
-        instructions.forEach((inst, index) => {
-            const row = document.createElement('div');
-            row.className = 'row mb-2';
-            row.innerHTML = `
-                <div class="col-1 d-flex align-items-center justify-content-end">
-                    <span class="fw-bold">${index + 1}.</span>
-                </div>
-                <div class="col-9">
-                    <textarea class="form-control" placeholder="Instruction step" 
-                              onchange="updateInstruction(${index}, 'text', this.value)">${inst.text || ''}</textarea>
-                </div>
-                <div class="col-2">
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeInstruction(${index})">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </div>
-            `;
-            instructionsContainer.appendChild(row);
-        });
+        if (instructions.length === 0) {
+            instructionsContainer.innerHTML = '<p class="text-muted text-center py-3"><i class="bi bi-emoji-neutral me-2"></i>No instructions added yet</p>';
+        } else {
+            instructions.forEach((inst, index) => {
+                const row = document.createElement('div');
+                row.className = 'row mb-2 bg-white';
+                row.innerHTML = `
+                    <div class="col-1 d-flex align-items-center justify-content-center">
+                        <span class="fw-bold badge rounded-pill" style="background-color: #FF6B6B;">${index + 1}</span>
+                    </div>
+                    <div class="col-10">
+                        <textarea class="form-control" rows="2" placeholder="Describe this step..." 
+                                  onchange="updateInstruction(${index}, 'text', this.value)">${inst.text || ''}</textarea>
+                    </div>
+                    <div class="col-1 d-flex align-items-center justify-content-center">
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" onclick="removeInstruction(${index})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                `;
+                instructionsContainer.appendChild(row);
+            });
+        }
         instructionsJsonInput.value = JSON.stringify(instructions);
     }
     
@@ -182,11 +232,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     window.removeInstruction = function(index) {
-        instructions.splice(index, 1);
-        renderInstructions();
+        if (confirm('Are you sure you want to remove this step?')) {
+            instructions.splice(index, 1);
+            renderInstructions();
+        }
     }
     
     document.getElementById('add-instruction').addEventListener('click', addInstruction);
+    
+    // Enhance form controls with custom styling
+    document.querySelectorAll('.form-control, .form-select').forEach(input => {
+        input.classList.add('rounded-3');
+    });
     
     // Initialize the UI
     renderIngredients();

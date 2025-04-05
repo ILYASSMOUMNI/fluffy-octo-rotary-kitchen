@@ -11,6 +11,33 @@
 
     <!-- ===== START CHAT WIDGET CSS ===== -->
     <style>
+         .navbar-search-form {
+        width: 250px; /* Fixed width or use min/max-width */
+        transition: width 0.3s ease;
+    }
+    
+    .navbar-search-form .input-group {
+        width: 100%;
+    }
+    
+    .navbar-search-form .form-control {
+        height: 38px; /* Fixed height matching navbar */
+        font-size: 0.875rem; /* Consistent with navbar text */
+        padding: 0.375rem 0.75rem;
+    }
+    
+    .navbar-search-form .btn {
+        height: 38px; /* Match input height */
+        padding: 0 0.75rem;
+    }
+    
+    /* Make it responsive */
+    @media (max-width: 992px) {
+        .navbar-search-form {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+    }
         
         #chat-widget-icon {
             position: fixed;
@@ -158,7 +185,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">🍳 My Recipe App</a>
+            <a class="navbar-brand" href="{% url 'home' %}">🍳 SmartRecipe</a>
     
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -192,11 +219,11 @@
                     </li>
                 </ul>
     <!-- Search Bar - Styled to match navbar elements -->
-    <form method="GET" action="{% url 'recipe_search' %}" class="d-flex align-items-center mx-lg-2">
+    <form method="GET" action="{% url 'recipe_search' %}" class="d-flex align-items-center mx-lg-2 navbar-search-form">
         <div class="input-group">
-            <input type="text" name="q" class="form-control form-control-sm" placeholder="Search recipes..." 
+            <input type="text" name="q" class="form-control" placeholder="Search recipes..." 
                    aria-label="Search recipes" value="{{ request.GET.q }}">
-            <button class="btn btn-outline-light btn-sm" type="submit">
+            <button class="btn btn-outline-light" type="submit">
                 <i class="bi bi-search"></i>
             </button>
         </div>

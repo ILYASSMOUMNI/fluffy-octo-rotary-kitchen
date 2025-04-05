@@ -1,20 +1,181 @@
 {% extends 'users/base.html' %}
 {% load static %}
 
+{% block title %}{% if query %}Search Results for "{{ query }}"{% else %}Search Recipes{% endif %} - Cooking Platform{% endblock %}
+
+{% block extra_head %}
+<style>
+:root {
+    --primary-color: #FF6B6B;
+    --primary-light: #FF8E8E;
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --medium-gray: #e9ecef;
+    --dark-gray: #495057;
+    --text-color: #2d3436;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 2rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.section-title:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background-color: var(--primary-color);
+}
+
+.recipe-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid var(--medium-gray);
+    height: 100%;
+}
+
+.recipe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(255, 107, 107, 0.15);
+    border-color: var(--primary-light);
+}
+
+.card-img-container {
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+}
+
+.card-img-top {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.recipe-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.category-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    z-index: 1;
+}
+
+.card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 200px);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text-color);
+}
+
+.recipe-meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.recipe-meta div {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--dark-gray);
+}
+
+.recipe-meta i {
+    color: var(--primary-color);
+}
+
+.card-text {
+    color: var(--dark-gray);
+    margin-bottom: 1rem;
+    flex-grow: 1;
+}
+
+.btn-primary-custom {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary-custom:hover {
+    background-color: var(--primary-light);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    background-color: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-top: 2rem;
+}
+
+.empty-state i {
+    color: var(--primary-light);
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text-color);
+}
+
+.empty-state .lead {
+    color: var(--dark-gray);
+    margin-bottom: 1.5rem;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container my-5">
     <h2 class="section-title text-center">
         {% if query %}
-            Search Results for "{{ query }}"
+            <i class="fas fa-search me-2"></i>Search Results for "{{ query }}"
         {% else %}
-            Search Recipes
+            <i class="fas fa-search me-2"></i>Search Recipes
         {% endif %}
     </h2>
     
     {% if recipes %}
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for recipe in recipes %}
-        <!-- Same recipe card structure as your index.html -->
         <div class="col">
             <div class="card h-100 recipe-card">
                 <div class="card-img-container">
@@ -23,13 +184,13 @@
                     {% else %}
                         <img src="{% static 'images/default-recipe.jpg' %}" class="card-img-top" alt="No Image">
                     {% endif %}
-                    <span class="category-badge text-white">
-                        {{ recipe.category|default:"General" }}
+                    <span class="category-badge">
+                        {{ recipe.category.name|default:"General" }}
                     </span>
                 </div>
-                <div class="card-body d-flex flex-column">
+                <div class="card-body">
                     <h5 class="card-title">{{ recipe.title }}</h5>
-                    <div class="recipe-meta mb-3">
+                    <div class="recipe-meta">
                         <div><i class="fas fa-user-friends"></i> {{ recipe.servings }} servings</div>
                         <div><i class="fas fa-clock"></i> {{ recipe.cooking_time }} mins</div>
                         <div><i class="fas fa-star"></i> {{ recipe.difficulty|default:"Easy" }}</div>
@@ -46,8 +207,8 @@
         {% endfor %}
     </div>
     {% else %}
-    <div class="col-12 empty-state">
-        <i class="fas fa-utensils display-1 text-muted mb-4"></i>
+    <div class="empty-state">
+        <i class="fas fa-utensils display-4"></i>
         <h3 class="mb-3">No recipes found</h3>
         <p class="lead mb-4">Try a different search term or browse our recipes.</p>
         <a href="{% url 'recipe_list' %}" class="btn btn-primary-custom btn-lg">

@@ -5,6 +5,15 @@
 
 {% block content %}
 <style>
+       /* Ensure the navbar search isn't affected by this page's styles */
+       .navbar .navbar-search-form {
+        width: 250px !important;
+    }
+    
+    .navbar .navbar-search-form .form-control {
+        height: 38px !important;
+        font-size: 0.875rem !important;
+    }
     /* Base Styles */
     .ingredient-container {
         max-width: 800px;
