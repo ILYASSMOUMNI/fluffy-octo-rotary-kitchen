@@ -7,30 +7,60 @@
     <title>{% block title %}Cooking Platform{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {# Removed duplicate head and bootstrap links (Verified) #}
-
+    {% include 'users/navbar.html' %}
     <!-- ===== START CHAT WIDGET CSS ===== -->
     <style>
-         .navbar-search-form {
-        width: 250px; /* Fixed width or use min/max-width */
-        transition: width 0.3s ease;
+        
+    /* Search Bar Styles */
+    .navbar-search-form {
+        width: 250px;
+        margin-left: auto;
+        margin-right: 1rem;
     }
     
     .navbar-search-form .input-group {
-        width: 100%;
+        border-radius: 32px; /* Match your button style */
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
     }
     
     .navbar-search-form .form-control {
-        height: 38px; /* Fixed height matching navbar */
-        font-size: 0.875rem; /* Consistent with navbar text */
-        padding: 0.375rem 0.75rem;
+        height: 38px;
+        font-size: 0.875rem;
+        padding: 0.375rem 1rem;
+        border: none;
+        background-color: #f8f9fa;
     }
     
     .navbar-search-form .btn {
-        height: 38px; /* Match input height */
-        padding: 0 0.75rem;
+        height: 38px;
+        width: 38px; /* Fixed width for round button */
+        padding: 0;
+        border: none;
+        background-color: #FF6B6B;
+        color: white;
+        border-radius: 50% !important; /* Force round shape */
+        margin: 4px; /* Add some spacing */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
+    .navbar-search-form .form-control:focus {
+        background-color: white;
+        box-shadow: none;
+    }
+    
+    @media (max-width: 992px) {
+        .navbar-search-form {
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+    }
+
+       
     /* Make it responsive */
     @media (max-width: 992px) {
         .navbar-search-form {
@@ -183,80 +213,7 @@
     {% block extra_head %}{% endblock %} {# Keep this block if child templates need extra head content #}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">🍳 SmartRecipe</a>
     
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-    
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    {% if user.is_authenticated %}
-                       
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'recipe_list' %}">Recipes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'recipe_add' %}">Add Recipe</a>
-                        </li>
-                    
-                        {# AI Module Links #}
-                        <li class="nav-item dropdown">
-                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                               AI Tools
-                             </a>
-                             <ul class="dropdown-menu">
-                               <li><a class="dropdown-item" href="{% url 'ai_module:suggest_recipes' %}">Suggest Recipes</a></li>
-                               <li><a class="dropdown-item" href="{% url 'ai_module:identify_ingredients' %}">Identify Ingredients</a></li>
-                               <li><a class="dropdown-item" href="{% url 'ai_module:recommendations' %}">My Recommendations</a></li>
-                             </ul>
-                        </li>
-                    {% endif %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'category_list' %}">Categories</a>
-                    </li>
-                </ul>
-    <!-- Search Bar - Styled to match navbar elements -->
-    <form method="GET" action="{% url 'recipe_search' %}" class="d-flex align-items-center mx-lg-2 navbar-search-form">
-        <div class="input-group">
-            <input type="text" name="q" class="form-control" placeholder="Search recipes..." 
-                   aria-label="Search recipes" value="{{ request.GET.q }}">
-            <button class="btn btn-outline-light" type="submit">
-                <i class="bi bi-search"></i>
-            </button>
-        </div>
-    </form>
-    
-                <ul class="navbar-nav">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle me-1" viewBox="0 0 16 16">
-                                  <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-                                  <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
-                                </svg>
-                                {{ user.username }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item" href="{% url 'dashboard'%}">My Profile</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link btn btn-primary btn-sm px-3 ms-lg-2" href="{% url 'register' %}">Sign Up</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
 
 
     <main class="container mt-4 mb-5"> {# Added mb-5 for footer spacing if added later #}

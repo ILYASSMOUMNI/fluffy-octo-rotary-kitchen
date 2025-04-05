@@ -1,0 +1,139 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}" style="font-weight: 600; color: #FF6B6B; font-size: 1.4rem;">
+            <i class="fas fa-utensils me-1"></i>SmartRecipe
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'recipe_list' %}">Recipes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'recipe_add' %}">Add Recipe</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            AI Tools
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'ai_module:suggest_recipes' %}">Suggest Recipes</a></li>
+                            <li><a class="dropdown-item" href="{% url 'ai_module:identify_ingredients' %}">Identify Ingredients</a></li>
+                            <li><a class="dropdown-item" href="{% url 'ai_module:recommendations' %}">My Recommendations</a></li>
+                        </ul>
+                    </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'category_list' %}">Categories</a>
+                </li>
+            </ul>
+
+            <!-- Search Form -->
+            <form method="GET" action="{% url 'recipe_search' %}" class="navbar-search-form me-3">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search recipes..." 
+                           aria-label="Search recipes" value="{{ request.GET.q }}">
+                    <button class="btn" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i>
+                            <span>{{ user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'dashboard' %}">My Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item d-flex align-items-center">
+                        <a class="nav-link" href="{% url 'login' %}" style="color: #2C2B2B;">Login</a>
+                    </li>
+                    <li class="nav-item ms-2 d-flex align-items-center">
+                        <a class="btn btn-sm" href="{% url 'register' %}" style="background-color: #FFDB63; color: #2C2B2B; border-radius: 32px; font-weight: 700; padding: 0.375rem 1rem;">
+                            Sign Up
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<style>
+    /* Navbar Styles */
+    .navbar {
+        padding: 0.8rem 1rem;
+    }
+    
+    .nav-link {
+        color: #2C2B2B;
+        font-weight: 500;
+        padding: 0.5rem 1rem !important;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover {
+        color: #FF6B6B;
+    }
+    
+    /* Search Bar Styles */
+    .navbar-search-form {
+        width: 250px;
+    }
+    
+    .navbar-search-form .input-group {
+        border-radius: 32px;
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .navbar-search-form .form-control {
+        height: 38px;
+        font-size: 0.875rem;
+        padding: 0.375rem 1rem;
+        border: none;
+        background-color: #f8f9fa;
+    }
+    
+    .navbar-search-form .btn {
+        height: 38px;
+        width: 38px;
+        padding: 0;
+        border: none;
+        background-color: #FF6B6B;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .navbar-search-form .form-control:focus {
+        background-color: white;
+        box-shadow: none;
+    }
+    
+    @media (max-width: 992px) {
+        .navbar-search-form {
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+        
+        .navbar-nav {
+            margin-top: 0.5rem;
+        }
+    }
+</style>
