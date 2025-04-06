@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'recipes',
     'widget_tweaks',
     'ai_module',
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -52,7 +53,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 ROOT_URLCONF = 'cooking_platform.urls'
 
@@ -67,6 +74,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -144,3 +153,11 @@ GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY') # Add this line
 
 if not GOOGLE_API_KEY:
      print("WARNING: GOOGLE_API_KEY environment variable not set. AI Chatbot features using Gemini will be disabled.")
+
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '530951398457-j972344ht0de466huio66282gggf4chm.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+LOGIN_REDIRECT_URL = '/'

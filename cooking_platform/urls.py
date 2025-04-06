@@ -25,6 +25,6 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('', lambda request: redirect('login')),
     path('users/', include('django.contrib.auth.urls')),
-    path('recipes/', include('recipes.urls')), 
+    path('recipes/', include('recipes.urls')),  
     path('ai/', include('ai_module.urls', namespace='ai_module')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

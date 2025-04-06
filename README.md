@@ -1,5 +1,7 @@
 # fluffy-octo-rotary-kitchen
-Par Ismail Khdem..............
+hadi for google auth
+pip install social-auth-app-django
+
 READ THIS
 zakaria was here
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
