@@ -27,12 +27,17 @@
                             <li><a class="dropdown-item" href="{% url 'ai_module:recommendations' %}">My Recommendations</a></li>
                         </ul>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'liked_recipes' %}">
+                            <i class="fas fa-heart"></i> My Likes
+                        </a>
+                    </li>
                 {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'category_list' %}">Categories</a>
                 </li>
             </ul>
-
+          
             <!-- Search Form -->
             <form method="GET" action="{% url 'recipe_search' %}" class="navbar-search-form me-3">
                 <div class="input-group">

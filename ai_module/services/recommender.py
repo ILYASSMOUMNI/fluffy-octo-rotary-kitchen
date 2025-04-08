@@ -1,18 +1,14 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from recipes.models import Recipe, Ingredient
 from django.db.models import Q, Count, Case, When, FloatField
 import random
 
-User = get_user_model()
-
-DEFAULT_MAX_RECOMMENDATIONS = 10
-POPULARITY_THRESHOLD = 2
-
-def get_personalized_recommendations(user: User, max_recommendations: int = DEFAULT_MAX_RECOMMENDATIONS) -> list[dict]:
+def get_personalized_recommendations(user: User, max_recommendations: int = 10) -> list[dict]:
     """
     Provides personalized recipe recommendations for a logged-in user
     """
-    # Gather user preferences
+    # Gather user preferences - use 'likes' instead of 'liked_by_users'
     liked_recipe_ids = list(user.liked_recipes.values_list('id', flat=True))
     disliked_ingredient_ids = list(user.disliked_ingredients.values_list('id', flat=True))
     preferred_cuisines = user.preferred_cuisines or []
@@ -56,14 +52,14 @@ def get_personalized_recommendations(user: User, max_recommendations: int = DEFA
 
         results.append({
             "recipe_id": recipe.id,
-            "recipe_title": recipe.title,  # Changed from recipe_name to recipe_title
-            "recipe_description": recipe.description,  # Added description
-            "recipe_image": recipe.image.url if recipe.image else None,  # Added image
+            "recipe_title": recipe.title,
+            "recipe_description": recipe.description,
+            "recipe_image": recipe.image.url if recipe.image else None,
             "score": round(score, 2),
             "reason": reason,
         })
 
-    # Fallback to popular recipes if needed
+    # Fallback to popular recipes if needed - use 'likes' for counting
     needed = max_recommendations - len(results)
     if needed > 0:
         exclude_ids = [r['recipe_id'] for r in results] + liked_recipe_ids
@@ -75,15 +71,16 @@ def get_personalized_recommendations(user: User, max_recommendations: int = DEFA
 
     return results
 
-def get_popular_recipes(max_recommendations: int = DEFAULT_MAX_RECOMMENDATIONS, exclude_ids: list = None) -> list[dict]:
+def get_popular_recipes(max_recommendations: int = 10, exclude_ids: list = None) -> list[dict]:
     """Fetches popular recipes based on likes"""
     if exclude_ids is None:
         exclude_ids = []
 
+    # Use 'likes' instead of 'liked_by_users' for counting
     popular_qs = Recipe.objects.annotate(
-        num_likes=Count('liked_by_users')
+        num_likes=Count('likes')  # Changed from 'liked_by_users' to 'likes'
     ).filter(
-        num_likes__gte=POPULARITY_THRESHOLD
+        num_likes__gte=2
     ).exclude(
         id__in=exclude_ids
     ).order_by(
@@ -106,9 +103,9 @@ def get_popular_recipes(max_recommendations: int = DEFAULT_MAX_RECOMMENDATIONS, 
         reason = f"Popular ({num_likes} likes)" if num_likes > 0 else "New or less known"
         results.append({
             "recipe_id": recipe.id,
-            "recipe_title": recipe.title,  # Changed from recipe_name to recipe_title
-            "recipe_description": recipe.description,  # Added description
-            "recipe_image": recipe.image.url if recipe.image else None,  # Added image
+            "recipe_title": recipe.title,
+            "recipe_description": recipe.description,
+            "recipe_image": recipe.image.url if recipe.image else None,
             "score": num_likes,
             "reason": reason,
         })

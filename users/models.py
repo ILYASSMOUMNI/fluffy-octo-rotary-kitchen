@@ -20,10 +20,10 @@ class User(AbstractUser):
 
     # --- Add Preference Fields Here ---
     # Use strings 'app_name.ModelName' for M2M fields to avoid import issues
-    liked_recipes = models.ManyToManyField(
+    saved_recipes = models.ManyToManyField(
         'recipes.Recipe',
         blank=True,
-        related_name='liked_by_users' # Important for the recommender query
+        related_name='saved_by_users'
     )
     disliked_ingredients = models.ManyToManyField(
         'recipes.Ingredient',
@@ -35,7 +35,8 @@ class User(AbstractUser):
         blank=True,
         null=True # Allow null if blank=True
     )
-
+    def has_liked(self, recipe):
+        return self.liked_recipes.filter(pk=recipe.pk).exists()
     def __str__(self):
         # Avoid error if role is blank:
         role_display = self.get_role_display() if self.role else "No Role"

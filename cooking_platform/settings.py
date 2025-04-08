@@ -95,6 +95,11 @@ DATABASES = {
         'PASSWORD': 'root',
         'HOST': 'localhost',
         'PORT': '3306',
+         'OPTIONS': {
+            'charset': 'utf8mb4',
+            # These table options help with the index length issue
+            'init_command': 'SET innodb_strict_mode=1; SET character_set_connection=utf8mb4; SET collation_connection=utf8mb4_unicode_ci; SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;',
+        }
     }
 }
 

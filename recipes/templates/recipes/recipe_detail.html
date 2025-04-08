@@ -14,7 +14,60 @@
     --dark-gray: #495057;
     --text-color: #2d3436;
 }
+.like-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+}
 
+.btn-like {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.3s ease;
+    background-color: #f0f0f0;
+}
+
+.btn-like:hover {
+    background-color: #e0e0e0;
+}
+
+.btn-like i {
+    color: #999;
+    font-size: 18px;
+}
+
+.btn-like.liked i {
+    color: #ff0000;
+}
+
+.like-count {
+    font-weight: 500;
+    color: #333;
+}
+
+.likes-text {
+    color: #666;
+    font-size: 14px;
+}
+
+.btn-like {
+    color: gray; /* Default color */
+}
+
+.btn-like.liked {
+    color: red; /* Color when liked */
+}
+
+.btn-like:hover {
+    color: pink; /* Hover color */
+}
 .recipe-detail-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -322,4 +375,82 @@
         </div>
     </div>
 </div>
+               
+<!-- Like Button (update this in your recipe_detail.html) -->
+<!-- Like Button -->
+<!-- Like Section -->
+<div class="like-section">
+    <form method="post" action="{% url 'recipe_detail' recipe.id %}">
+        {% csrf_token %}
+        <button type="submit" name="like" class="btn-like {% if is_liked %}liked{% endif %}">
+            <i class="fas fa-heart"></i>
+            <span class="like-count">{{ recipe.likes.count }}</span>
+        </button>
+    </form>
+    <span class="likes-text">Likes</span>
+</div>
+
+<!-- Display comments -->
+<div class="comments-section">
+    <h4>Comments ({{ comments.count }})</h4>
+    
+    {% if user.is_authenticated %}
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+        {{ comment_form.as_p }}
+        <button type="submit" name="comment" class="btn btn-primary">Post Comment</button>
+    </form>
+    {% else %}
+    <p><a href="{% url 'login' %}">Log in</a> to leave a comment</p>
+    {% endif %}
+    
+    <div class="comment-list">
+        {% for comment in comments %}
+       <!-- In your comment display section -->
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between">
+            <h6 class="card-subtitle mb-2 text-muted">
+                {{ comment.author.username }}
+            </h6>
+            <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+        </div>
+        <p class="card-text">{{ comment.text }}</p>
+        {% if comment.author == user or user.is_staff %}
+        <div class="comment-actions">
+            <a href="{% url 'edit_comment' comment.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+            <!-- Add delete button here if needed -->
+        </div>
+        {% endif %}
+    </div>
+</div>
+        {% empty %}
+        <p>No comments yet.</p>
+        {% endfor %}
+    </div>
+</div>
+<script>
+    document.getElementById('like-btn').addEventListener('click', function() {
+        const recipeId = this.getAttribute('data-recipe-id');
+        const likeBtn = this;
+        const likeCount = document.getElementById('like-count');
+        
+        fetch(`/recipe/${recipeId}/like/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                likeBtn.classList.toggle('liked');
+                likeCount.textContent = data.like_count;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+    </script>
 {% endblock %}

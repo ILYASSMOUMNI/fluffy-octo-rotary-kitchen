@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Recipe, Category, Ingredient
-from .forms import RecipeForm, CategoryForm, IngredientForm
+from .forms import RecipeForm, CategoryForm, IngredientForm, EditCommentForm
 from django.contrib.auth.decorators import login_required
 import json
 from django.db.models import Q
-
-
+from .forms import CommentForm
+from .models import Comment
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
 
 @login_required
 def recipe_add(request):
@@ -135,8 +137,42 @@ def category_list(request):
     return render(request, 'recipes/category_list.html', {'categories': categories})
 def recipe_detail(request, id):
     recipe = get_object_or_404(Recipe, id=id)
-    return render(request, 'recipes/recipe_detail.html', {'recipe': recipe})
-
+    
+    # Handle like/unlike action
+    if request.method == 'POST' and 'like' in request.POST:
+        if request.user.is_authenticated:
+            if request.user in recipe.likes.all():
+                recipe.likes.remove(request.user)
+            else:
+                recipe.likes.add(request.user)
+            return redirect('recipe_detail', id=id)
+    
+    # Check if current user has liked this recipe
+    is_liked = request.user.is_authenticated and request.user in recipe.likes.all()
+    
+    # Handle comment submission
+    if request.method == 'POST' and 'comment' in request.POST and request.user.is_authenticated:
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.recipe = recipe
+            comment.author = request.user
+            comment.save()
+            return redirect('recipe_detail', id=id)
+    else:
+        comment_form = CommentForm()
+    
+    # Get all comments for this recipe
+    comments = Comment.objects.filter(recipe=recipe).order_by('-created_at')
+    
+    context = {
+        'recipe': recipe,
+        'comments': comments,
+        'comment_form': comment_form,
+        'is_liked': is_liked,
+        'like_count': recipe.likes.count()
+    }
+    return render(request, 'recipes/recipe_detail.html', context)
 def recipe_search(request):
     query = request.GET.get('q', '').strip()
     results = Recipe.objects.all()
@@ -159,3 +195,22 @@ def recipe_search(request):
         'query': query
     }
     return render(request, 'recipes/search_results.html', context)
+@login_required
+def edit_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    
+    if not comment.can_edit(request.user):
+        return HttpResponseForbidden("You don't have permission to edit this comment")
+    
+    if request.method == 'POST':
+        form = EditCommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect('recipe_detail', id=comment.recipe.id)
+    else:
+        form = EditCommentForm(instance=comment)
+    
+    return render(request, 'recipes/edit_comment.html', {
+        'form': form,
+        'comment': comment
+    })

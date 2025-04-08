@@ -1,0 +1,150 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}My Liked Recipes{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4">My Favorite Recipes</h1>
+        <p class="lead">All the recipes you've liked in one place</p>
+    </div>
+
+    {% if page_obj %}
+    <div class="alert alert-info">
+        Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} liked recipes
+    </div>
+    
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for recipe in page_obj %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                {% if recipe.image %}
+                <img src="{{ recipe.image.url }}" class="card-img-top" alt="{{ recipe.title }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <img src="{% static 'images/default-recipe.jpg' %}" class="card-img-top" alt="Default Recipe Image" style="height: 200px; object-fit: cover;">
+                {% endif %}
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ recipe.title }}</h5>
+                    <p class="card-text text-muted">
+                        <small>By {{ recipe.created_by.username }}</small>
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary">{{ recipe.category.name|default:"Uncategorized" }}</span>
+                        <span class="text-muted">
+                            <i class="fas fa-heart text-danger"></i> {{ recipe.likes.count }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-transparent border-top-0">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-primary">View Recipe</a>
+                        <form method="post" action="{% url 'recipe_detail' recipe.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="redirect_to" value="{% url 'liked_recipes' %}">
+                            <button type="submit" name="like" class="btn btn-outline-danger w-100">
+                                <i class="fas fa-heart-broken"></i> Remove from Favorites
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5">
+        <div class="empty-state">
+            <i class="fas fa-heart fa-4x text-muted mb-3"></i>
+            <h3>No favorites yet</h3>
+            <p class="text-muted">You haven't liked any recipes yet. Browse recipes and click the <i class="fas fa-heart text-danger"></i> to save them here!</p>
+            <a href="{% url 'recipe_list' %}" class="btn btn-primary mt-3">
+                <i class="fas fa-utensils"></i> Browse Recipes
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.empty-state {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+}
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.page-item.active .page-link {
+    background-color: #FF6B6B;
+    border-color: #FF6B6B;
+}
+
+.page-link {
+    color: #FF6B6B;
+}
+
+.page-link:hover {
+    color: #d85656;
+}
+</style>
+{% endblock %}
