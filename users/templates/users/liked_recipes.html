@@ -3,51 +3,233 @@
 
 {% block title %}My Liked Recipes{% endblock %}
 
-{% block content %}
-<div class="container py-5">
-    <div class="text-center mb-5">
-        <h1 class="display-4">My Favorite Recipes</h1>
-        <p class="lead">All the recipes you've liked in one place</p>
-    </div>
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary-color: #FF6B6B;
+        --secondary-color: #FFDB63; /* Your golden color */
+        --dark-color: #2C2B2B;
+        --light-color: #F5F2F2;
+        --accent-color: #4ECDC4;
+    }
+    
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #e05555 100%);
+        color: white;
+        padding: 80px 0 60px;
+        margin-bottom: 40px;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 10px 30px rgba(255, 107, 107, 0.2);
+    }
+    
+    .recipe-card {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+        height: 100%;
+    }
+    
+    .recipe-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+    
+    /* Golden View Recipe Button */
+    .btn-view-recipe {
+        background-color: var(--secondary-color);
+        color: var(--dark-color);
+        border: none;
+        padding: 10px 25px;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(255, 219, 99, 0.3);
+    }
+    
+    .btn-view-recipe:hover {
+        background-color: #e6c44d;
+        color: var(--dark-color);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(255, 219, 99, 0.4);
+    }
+    
+    .btn-view-recipe i {
+        margin-right: 8px;
+    }
+    
+    /* Remove button styling */
+    .btn-remove {
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        background: transparent;
+        padding: 10px 25px;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-remove:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    /* Rest of your existing styles... */
+    .card-img-container {
+        height: 220px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .card-img-top {
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
+        transition: transform 0.5s ease;
+    }
+    
+    .recipe-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+    
+    .category-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 1;
+        background-color: var(--primary-color);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: 600;
+        color: white;
+    }
+    
+    .empty-state {
+        padding: 60px 40px;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .pagination .page-link {
+        color: var(--primary-color);
+        margin: 0 5px;
+        border-radius: 8px !important;
+    }
+    
+    .pagination .page-link:hover {
+        color: #d85656;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        margin-right: 15px;
+        color: #6c757d;
+    }
+    
+    .meta-item i {
+        margin-right: 5px;
+        color: var(--primary-color);
+    }
+    
+    .info-badge {
+        background-color: rgba(255, 107, 107, 0.1);
+        color: var(--primary-color);
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
 
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">My Favorite Recipes</h1>
+        <p class="lead mb-4">All the delicious recipes you've loved in one place</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'recipe_list' %}" class="btn btn-light btn-lg rounded-pill px-4">
+                <i class="fas fa-utensils me-2"></i> Browse More
+            </a>
+        </div>
+    </div>
+</section>
+
+<div class="container py-4">
     {% if page_obj %}
-    <div class="alert alert-info">
-        Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} liked recipes
+    <div class="info-badge mb-4">
+        <i class="fas fa-info-circle me-2"></i>
+        Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} favorites
     </div>
     
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for recipe in page_obj %}
         <div class="col">
-            <div class="card h-100 shadow-sm">
-                {% if recipe.image %}
-                <img src="{{ recipe.image.url }}" class="card-img-top" alt="{{ recipe.title }}" style="height: 200px; object-fit: cover;">
-                {% else %}
-                <img src="{% static 'images/default-recipe.jpg' %}" class="card-img-top" alt="Default Recipe Image" style="height: 200px; object-fit: cover;">
-                {% endif %}
-                
-                <div class="card-body">
+            <div class="card h-100 recipe-card">
+                <div class="card-img-container">
+                    {% if recipe.image %}
+                        <img src="{{ recipe.image.url }}" class="card-img-top" alt="{{ recipe.title }}">
+                    {% else %}
+                        <img src="{% static 'images/default-recipe.jpg' %}" class="card-img-top" alt="Default Recipe Image">
+                    {% endif %}
+                    <span class="category-badge">
+                        {{ recipe.category.name|default:"General" }}
+                    </span>
+                </div>
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ recipe.title }}</h5>
-                    <p class="card-text text-muted">
+                    <p class="card-text text-muted mb-3">
                         <small>By {{ recipe.created_by.username }}</small>
                     </p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="badge bg-primary">{{ recipe.category.name|default:"Uncategorized" }}</span>
-                        <span class="text-muted">
-                            <i class="fas fa-heart text-danger"></i> {{ recipe.likes.count }}
-                        </span>
+                    
+                    <div class="d-flex flex-wrap mb-3">
+                        <div class="meta-item">
+                            <i class="fas fa-user-friends"></i>
+                            <span>{{ recipe.servings }} servings</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-clock"></i>
+                            <span>{{ recipe.cooking_time }} mins</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-heart"></i>
+                            <span>{{ recipe.likes.count }}</span>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="card-footer bg-transparent border-top-0">
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-primary">View Recipe</a>
-                        <form method="post" action="{% url 'recipe_detail' recipe.id %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="redirect_to" value="{% url 'liked_recipes' %}">
-                            <button type="submit" name="like" class="btn btn-outline-danger w-100">
-                                <i class="fas fa-heart-broken"></i> Remove from Favorites
-                            </button>
-                        </form>
+                    
+                    <div class="mt-auto">
+                        <div class="d-grid gap-2">
+                            <!-- Golden View Recipe Button -->
+                            <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-view-recipe">
+                                <i class="fas fa-book-open"></i> View Recipe
+                            </a>
+                            <form method="post" action="{% url 'recipe_detail' recipe.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="redirect_to" value="{% url 'liked_recipes' %}">
+                                <button type="submit" name="like" class="btn btn-remove">
+                                    <i class="fas fa-heart-broken me-2"></i> Remove
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -57,17 +239,17 @@
 
     <!-- Pagination -->
     {% if page_obj.paginator.num_pages > 1 %}
-    <nav aria-label="Page navigation" class="mt-4">
+    <nav aria-label="Page navigation" class="mt-5">
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
             <li class="page-item">
                 <a class="page-link" href="?page=1" aria-label="First">
-                    <span aria-hidden="true">&laquo;&laquo;</span>
+                    <i class="fas fa-angle-double-left"></i>
                 </a>
             </li>
             <li class="page-item">
                 <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
+                    <i class="fas fa-angle-left"></i>
                 </a>
             </li>
             {% endif %}
@@ -87,12 +269,12 @@
             {% if page_obj.has_next %}
             <li class="page-item">
                 <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
+                    <i class="fas fa-angle-right"></i>
                 </a>
             </li>
             <li class="page-item">
                 <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
-                    <span aria-hidden="true">&raquo;&raquo;</span>
+                    <i class="fas fa-angle-double-right"></i>
                 </a>
             </li>
             {% endif %}
@@ -101,50 +283,16 @@
     {% endif %}
 
     {% else %}
-    <div class="text-center py-5">
-        <div class="empty-state">
-            <i class="fas fa-heart fa-4x text-muted mb-3"></i>
-            <h3>No favorites yet</h3>
-            <p class="text-muted">You haven't liked any recipes yet. Browse recipes and click the <i class="fas fa-heart text-danger"></i> to save them here!</p>
-            <a href="{% url 'recipe_list' %}" class="btn btn-primary mt-3">
-                <i class="fas fa-utensils"></i> Browse Recipes
-            </a>
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <i class="fas fa-heart"></i>
         </div>
+        <h3 class="mb-3">Your favorites collection is empty</h3>
+        <p class="text-muted mb-4">Start exploring recipes and click the <i class="fas fa-heart text-danger"></i> button to save them here!</p>
+        <a href="{% url 'recipe_list' %}" class="btn btn-primary-custom btn-lg">
+            <i class="fas fa-utensils me-2"></i> Discover Recipes
+        </a>
     </div>
     {% endif %}
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-.empty-state {
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 2rem;
-    background-color: #f8f9fa;
-    border-radius: 10px;
-}
-
-.card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-}
-
-.page-item.active .page-link {
-    background-color: #FF6B6B;
-    border-color: #FF6B6B;
-}
-
-.page-link {
-    color: #FF6B6B;
-}
-
-.page-link:hover {
-    color: #d85656;
-}
-</style>
 {% endblock %}
