@@ -362,6 +362,11 @@
                 <li class="detail-item">
                     <span class="detail-label">Created by:</span>
                     <span>{{ recipe.created_by.username }}</span>
+                    {% if recipe.created_by.role == 'chef' %}
+                    <span class="badge bg-success" style="margin-left: 10px;">
+                        <i class="fas fa-star"></i> Chef
+                    </span>
+                    {% endif %}
                 </li>
                 <li class="detail-item">
                     <span class="detail-label">Category:</span>

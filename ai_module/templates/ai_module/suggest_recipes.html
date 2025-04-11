@@ -141,6 +141,7 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         overflow: hidden;
         transition: transform 0.3s, box-shadow 0.3s;
+        position: relative;
     }
 
     .recipe-card:hover {
@@ -306,6 +307,11 @@
                         <div class="missing-ingredients">
                             <small>Missing: {{ suggestion.missing_ingredients|join:", "|truncatewords:5 }}</small>
                         </div>
+                        {% endif %}
+                        {% if recipe.created_by.role == 'chef' %}
+                        <span class="badge bg-success" style="position: absolute; top: 10px; left: 10px; z-index: 2;">
+                            <i class="fas fa-star"></i> Chef's Pick
+                        </span>
                         {% endif %}
                     </div>
                 {% if suggestion.recipe_id %}

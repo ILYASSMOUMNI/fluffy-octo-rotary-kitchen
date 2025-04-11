@@ -45,6 +45,9 @@
                     <p>{{ user.bio }}</p>
                 </div>
                 {% endif %}
+                {% if user.role == 'chef' %}
+                <span class="badge bg-success">Verified Chef</span>
+                {% endif %}
             </div>
         </div>
 

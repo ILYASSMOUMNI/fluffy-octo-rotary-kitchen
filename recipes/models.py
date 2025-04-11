@@ -45,6 +45,11 @@ class Recipe(models.Model):
     )
     def __str__(self):
         return self.title
+
+    def has_chef_badge(self):
+        """Check if the recipe creator has a 'chef' role."""
+        return self.created_by.role == 'chef'
+
 class Comment(models.Model):
     recipe = models.ForeignKey(
         'Recipe', 
