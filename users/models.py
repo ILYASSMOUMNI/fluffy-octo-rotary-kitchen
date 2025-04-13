@@ -1,6 +1,7 @@
 # users/models.py
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from cloudinary.models import CloudinaryField
 from recipes.models import Recipe
 # Remove: from django.shortcuts import render # Belongs in views
 
@@ -16,7 +17,7 @@ class User(AbstractUser):
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, blank=True) # Allow blank role?
     bio = models.TextField(blank=True, null=True)
-    profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
+    profile_picture = CloudinaryField('image', folder='profile_pictures', blank=True, null=True)
 
     # --- Add Preference Fields Here ---
     # Use strings 'app_name.ModelName' for M2M fields to avoid import issues

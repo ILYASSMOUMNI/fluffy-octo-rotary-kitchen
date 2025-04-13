@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from cloudinary.models import CloudinaryField
+
 class Category(models.Model):
     name = models.CharField(max_length=100)
     
@@ -36,8 +38,7 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(Ingredient, related_name='recipes')
     servings = models.PositiveIntegerField(default=1)
     instructions = models.TextField()
-    image = models.ImageField(upload_to='recipes/', null=True, blank=True)
-        # Update the likes field to be more explicit
+    image = CloudinaryField('image', folder='recipe_images', null=True, blank=True)
     likes = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         blank=True,
