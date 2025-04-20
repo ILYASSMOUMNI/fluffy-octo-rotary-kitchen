@@ -19,6 +19,12 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
+    APPROVAL_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     created_at = models.DateTimeField(default=timezone.now)
@@ -44,8 +50,50 @@ class Recipe(models.Model):
         blank=True,
         related_name='liked_recipes'
     )
+    approval_status = models.CharField(
+        max_length=20,
+        choices=APPROVAL_STATUS_CHOICES,
+        default='pending'
+    )
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='approved_recipes'
+    )
+    approval_date = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(blank=True, null=True)
+
     def __str__(self):
         return self.title
+
+    def needs_approval(self):
+        """Check if the recipe needs approval based on the creator's role"""
+        return self.created_by.role not in ['chef']
+
+    def approve(self, approved_by):
+        """Approve the recipe"""
+        if approved_by.role != 'chef':
+            raise ValueError("Only chefs can approve recipes")
+        self.approval_status = 'approved'
+        self.approved_by = approved_by
+        self.approval_date = timezone.now()
+        self.save()
+
+    def reject(self, rejected_by, reason):
+        """Reject the recipe"""
+        if rejected_by.role != 'chef':
+            raise ValueError("Only chefs can reject recipes")
+        self.approval_status = 'rejected'
+        self.approved_by = rejected_by
+        self.approval_date = timezone.now()
+        self.rejection_reason = reason
+        self.save()
+
+    def is_approved(self):
+        """Check if the recipe is approved"""
+        return self.approval_status == 'approved'
 
     def has_chef_badge(self):
         """Check if the recipe creator has a 'chef' role."""

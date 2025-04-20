@@ -1,7 +1,7 @@
 {% extends 'users/base.html' %}
 {% load static %}
 
-{% block title %}My Recipes - Cooking Platform{% endblock %}
+{% block title %}My Recipe Status - Cooking Platform{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -53,31 +53,47 @@
     font-weight: 400;
 }
 
-.add-recipe-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.85rem 1.75rem;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-size: 0.9rem;
+.status-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
 }
 
-.add-recipe-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+.status-card {
+    background-color: var(--white);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
 }
 
-.add-recipe-btn i {
+.status-card:hover {
+    transform: translateY(-5px);
+}
+
+.status-card.approved {
+    border-top: 4px solid #28a745;
+}
+
+.status-card.pending {
+    border-top: 4px solid #ffc107;
+}
+
+.status-card.rejected {
+    border-top: 4px solid #dc3545;
+}
+
+.status-count {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.status-label {
     font-size: 1.1rem;
+    color: var(--dark-gray);
 }
 
 .recipe-grid {
@@ -126,6 +142,33 @@
 
 .recipe-card:hover .card-img-top {
     transform: scale(1.08);
+}
+
+.status-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.status-badge.approved {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-badge.pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.status-badge.rejected {
+    background-color: #dc3545;
+    color: white;
 }
 
 .category-badge {
@@ -244,65 +287,18 @@
     transform: translateY(-2px);
 }
 
-.empty-state {
-    grid-column: 1 / -1;
-    background-color: var(--white);
-    border-radius: 16px;
-    padding: 4rem 2rem;
-    text-align: center;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    border: 1px dashed var(--medium-gray);
+.rejection-reason {
+    background-color: rgba(220, 53, 69, 0.05);
+    border-left: 4px solid #dc3545;
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 8px;
 }
 
-.empty-icon {
-    font-size: 4rem;
-    color: var(--primary-light);
-    margin-bottom: 1.5rem;
-    opacity: 0.8;
-}
-
-.empty-title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: var(--text-color);
-}
-
-.empty-text {
-    color: var(--dark-gray);
-    margin-bottom: 2rem;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
-    line-height: 1.6;
-    font-size: 1.05rem;
-}
-
-.approval-badge {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    z-index: 1;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.approval-badge.approved {
-    background-color: #28a745;
-    color: white;
-}
-
-.approval-badge.pending {
-    background-color: #ffc107;
-    color: #212529;
-}
-
-.approval-badge.rejected {
-    background-color: #dc3545;
-    color: white;
+.rejection-reason p {
+    margin: 0;
+    color: #dc3545;
+    font-size: 0.9rem;
 }
 
 @media (max-width: 768px) {
@@ -310,6 +306,10 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 1.5rem;
+    }
+    
+    .status-cards {
+        grid-template-columns: 1fr;
     }
     
     .recipe-grid {
@@ -333,28 +333,45 @@
     <div class="page-header">
         <div>
             <h1 class="page-title">
-                <i class="fas fa-book-open"></i> My Recipes
+                <i class="fas fa-clipboard-list"></i> {% if is_chef %}My Recipes{% else %}My Recipe Status{% endif %}
             </h1>
-            <p class="page-subtitle">Your personal collection of culinary creations</p>
-        </div>
-        <div class="d-flex gap-3">
-            {% if user.role == 'chef' %}
-                <a href="{% url 'pending_recipes' %}" class="add-recipe-btn" style="background: linear-gradient(135deg, #ffc107 0%, #ffd54f 100%);">
-                    <i class="fas fa-clock"></i> Pending Approvals
-                    {% if pending_count %}
-                        <span class="badge bg-danger">{{ pending_count }}</span>
-                    {% endif %}
-                </a>
-            {% endif %}
-            <a href="{% url 'recipe_add' %}" class="add-recipe-btn">
-                <i class="fas fa-plus"></i> New Recipe
-            </a>
+            <p class="page-subtitle">
+                {% if is_chef %}
+                    View and manage all your recipes
+                {% else %}
+                    Track the status of your submitted recipes
+                {% endif %}
+            </p>
         </div>
     </div>
+
+    {% if is_chef %}
+    <div class="status-cards">
+        <div class="status-card approved">
+            <div class="status-count">{{ approved_count }}</div>
+            <div class="status-label">Total Recipes</div>
+        </div>
+    </div>
+    {% else %}
+    <div class="status-cards">
+        <div class="status-card approved">
+            <div class="status-count">{{ approved_count }}</div>
+            <div class="status-label">Approved Recipes</div>
+        </div>
+        <div class="status-card pending">
+            <div class="status-count">{{ pending_count }}</div>
+            <div class="status-label">Pending Review</div>
+        </div>
+        <div class="status-card rejected">
+            <div class="status-count">{{ rejected_count }}</div>
+            <div class="status-label">Rejected Recipes</div>
+        </div>
+    </div>
+    {% endif %}
     
-    {% if recipes %}
+    {% if user_recipes %}
     <div class="recipe-grid">
-        {% for recipe in recipes %}
+        {% for recipe in user_recipes %}
         <div class="recipe-card">
             <div class="card-img-container">
                 {% if recipe.image %}
@@ -362,11 +379,9 @@
                 {% else %}
                     <img src="{% static 'images/default-recipe.jpg' %}" class="card-img-top" alt="Default Recipe Image">
                 {% endif %}
-                {% if user.role == 'chef' %}
-                    <span class="approval-badge {{ recipe.approval_status }}">
-                        {{ recipe.get_approval_status_display }}
-                    </span>
-                {% endif %}
+                <span class="status-badge {{ recipe.approval_status }}">
+                    {{ recipe.get_approval_status_display }}
+                </span>
                 {% if recipe.category %}
                     <span class="category-badge">
                         {{ recipe.category.name }}
@@ -379,27 +394,40 @@
                 
                 <div class="recipe-meta">
                     <div class="meta-item">
-                        <i class="fas fa-user-friends"></i>
-                        <span>{{ recipe.servings }} servings</span>
-                    </div>
-                    <div class="meta-item">
                         <i class="fas fa-calendar-alt"></i>
                         <span>{{ recipe.created_at|date:"M d, Y" }}</span>
                     </div>
+                    {% if recipe.approval_status == 'approved' %}
+                        <div class="meta-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Approved on {{ recipe.approval_date|date:"M d, Y" }}</span>
+                        </div>
+                    {% elif recipe.approval_status == 'rejected' %}
+                        <div class="meta-item">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Rejected on {{ recipe.approval_date|date:"M d, Y" }}</span>
+                        </div>
+                    {% endif %}
                 </div>
+                
+                {% if recipe.approval_status == 'rejected' and recipe.rejection_reason %}
+                    <div class="rejection-reason">
+                        <p><strong>Reason for rejection:</strong> {{ recipe.rejection_reason }}</p>
+                    </div>
+                {% endif %}
                 
                 <div class="action-buttons">
                     <a href="{% url 'recipe_detail' recipe.id %}" class="action-btn view-btn">
                         <i class="fas fa-eye"></i> View
                     </a>
-                    {% if user == recipe.created_by or user.role == 'chef' %}
+                    {% if recipe.approval_status != 'approved' %}
                         <a href="{% url 'recipe_edit' recipe.id %}" class="action-btn edit-btn">
                             <i class="fas fa-edit"></i> Edit
                         </a>
-                        <a href="{% url 'recipe_delete' recipe.id %}" class="action-btn delete-btn">
-                            <i class="fas fa-trash-alt"></i> Delete
-                        </a>
                     {% endif %}
+                    <a href="{% url 'recipe_delete' recipe.id %}" class="action-btn delete-btn">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </a>
                 </div>
             </div>
         </div>
@@ -408,7 +436,7 @@
     {% else %}
     <div class="empty-state">
         <i class="fas fa-utensils empty-icon"></i>
-        <h3 class="empty-title">Your Recipe Book is Empty</h3>
+        <h3 class="empty-title">No Recipes Yet</h3>
         <p class="empty-text">Start your culinary journey by adding your first recipe. Share your favorite dishes with our community of food lovers.</p>
         <a href="{% url 'recipe_add' %}" class="add-recipe-btn">
             <i class="fas fa-plus-circle"></i> Create First Recipe
@@ -416,4 +444,4 @@
     </div>
     {% endif %}
 </div>
-{% endblock %}
+{% endblock %} 

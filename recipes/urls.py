@@ -11,5 +11,9 @@ urlpatterns = [
     path('category/<int:id>/', views.recipe_by_category, name='recipe_by_category'),
     path('<int:id>/', views.recipe_detail, name='recipe_detail'),
     path('search/', recipe_search, name='recipe_search'),
-        path('comment/<int:comment_id>/edit/', edit_comment, name='edit_comment'),
+    path('comment/<int:comment_id>/edit/', edit_comment, name='edit_comment'),
+    path('pending/', views.pending_recipes, name='pending_recipes'),
+    path('approve/<int:recipe_id>/', views.approve_recipe, name='approve_recipe'),
+    path('reject/<int:recipe_id>/', views.reject_recipe, name='reject_recipe'),
+    path('my-status/', views.my_recipe_status, name='my_recipe_status'),
 ]
