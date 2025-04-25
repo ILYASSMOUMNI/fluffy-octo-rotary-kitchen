@@ -1,0 +1,88 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Admin Dashboard</h1>
+
+    <!-- Chef Applications Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="h4 mb-0">Chef Applications</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Applicant</th>
+                            <th>Date Applied</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in chef_applications %}
+                        <tr>
+                            <td>{{ application.user.username }}</td>
+                            <td>{{ application.created_at|date:"F j, Y" }}</td>
+                            <td>
+                                <span class="badge {% if application.status == 'pending' %}bg-warning{% elif application.status == 'approved' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ application.status|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'process_application' application.id %}" class="btn btn-sm btn-primary">
+                                    Process
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No pending applications.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chefs Section -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="h4 mb-0">Approved Chefs</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Chef Name</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for chef in chefs %}
+                        <tr>
+                            <td>{{ chef.username }}</td>
+                            <td>{{ chef.email }}</td>
+                            <td>
+                                <a href="{% url 'award_badge' chef.id %}" class="btn btn-sm btn-success">
+                                    Award Badge
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center">No approved chefs.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

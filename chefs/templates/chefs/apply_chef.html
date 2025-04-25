@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-center">Apply to Become a Chef</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="motivation" class="form-label">Why do you want to become a chef?</label>
+                            <textarea class="form-control" id="motivation" name="motivation" rows="4" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="experience" class="form-label">Your Cooking Experience</label>
+                            <textarea class="form-control" id="experience" name="experience" rows="4" required></textarea>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Submit Application</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

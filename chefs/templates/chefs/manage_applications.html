@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Chef Applications</h1>
+    
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Applicant</th>
+                    <th>Date Applied</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in applications %}
+                <tr>
+                    <td>{{ application.user.username }}</td>
+                    <td>{{ application.created_at|date:"F j, Y" }}</td>
+                    <td>
+                        <span class="badge {% if application.status == 'pending' %}bg-warning{% elif application.status == 'approved' %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ application.status|title }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'process_application' application.id %}" class="btn btn-sm btn-primary">
+                            Process
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No applications found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 

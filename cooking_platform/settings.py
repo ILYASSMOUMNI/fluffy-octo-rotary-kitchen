@@ -51,6 +51,9 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'ai_module',
     'social_django',
+    'adminpanel',
+    'chefs',
+    'django.contrib.sites',
 ]
 
 MIDDLEWARE = [

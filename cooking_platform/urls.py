@@ -22,6 +22,8 @@ from django.conf import settings
 from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('adminpanel/', include('adminpanel.urls')),
+    path('administration/', lambda request: redirect('adminpanel:admin_login')),
     path('users/', include('users.urls')),
     path('', lambda request: redirect('login')),
     path('users/', include('django.contrib.auth.urls')),

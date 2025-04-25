@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Process Chef Application</h2>
+                </div>
+                <div class="card-body">
+                    <h4>Applicant: {{ application.user.username }}</h4>
+                    <p><strong>Applied on:</strong> {{ application.created_at|date:"F j, Y" }}</p>
+                    
+                    <div class="mb-4">
+                        <h5>Motivation</h5>
+                        <p>{{ application.motivation }}</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5>Experience</h5>
+                        <p>{{ application.experience }}</p>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Decision</label>
+                            <div class="btn-group" role="group">
+                                <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+                                <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+                            </div>
+                        </div>
+                        
+                        <div id="rejection-reason" class="mb-3" style="display: none;">
+                            <label for="rejection_reason" class="form-label">Rejection Reason</label>
+                            <textarea class="form-control" id="rejection_reason" name="rejection_reason" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelector('button[value="reject"]').addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('rejection-reason').style.display = 'block';
+    this.form.submit();
+});
+</script>
+{% endblock %} 
