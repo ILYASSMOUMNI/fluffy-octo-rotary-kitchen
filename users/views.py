@@ -47,12 +47,9 @@ def edit_profile_view(request):
     if request.method == 'POST':
         form = EditProfileForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
-            # Log or print the form data before saving to debug
-            print("Form data before saving:", form.cleaned_data)
-            
             form.save()
-            messages.success(request, 'Your profile has been updated!')
-            return redirect('home')  # Redirect to dashboard after success
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('dashboard')  # Redirect to dashboard after success
     else:
         form = EditProfileForm(instance=request.user)
     

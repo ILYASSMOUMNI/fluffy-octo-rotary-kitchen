@@ -8,6 +8,8 @@ from .forms import CommentForm
 from .models import Comment
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
+from django.utils import timezone
+from django.contrib import messages
 
 @login_required
 def recipe_add(request):
@@ -16,6 +18,16 @@ def recipe_add(request):
         if form.is_valid():
             recipe = form.save(commit=False)
             recipe.created_by = request.user
+            
+            # Auto-approve if created by a chef
+            if request.user.role == 'chef':
+                recipe.approval_status = 'approved'
+                recipe.approved_by = request.user
+                recipe.approval_date = timezone.now()
+            else:
+                # Set to pending for non-chefs
+                recipe.approval_status = 'pending'
+            
             recipe.save()
             
             # Process ingredients from JSON
@@ -29,6 +41,12 @@ def recipe_add(request):
                     )
                     recipe.ingredients.add(ingredient)
             
+            # Show success message with appropriate text based on approval status
+            if request.user.role == 'chef':
+                messages.success(request, 'Recipe created and automatically approved!')
+            else:
+                messages.success(request, 'Recipe created! It will be reviewed by our chefs before being published.')
+            
             return redirect('recipe_list')
     else:
         form = RecipeForm()
@@ -41,8 +59,13 @@ def recipe_add(request):
     })
 @login_required
 def recipe_edit(request, id):
-    recipe = get_object_or_404(Recipe, id=id, created_by=request.user)
-
+    # Get the recipe object by its ID
+    recipe = get_object_or_404(Recipe, id=id)
+    
+    # Check if user is the creator or a chef
+    if request.user != recipe.created_by and request.user.role != 'chef':
+        return HttpResponseForbidden("You don't have permission to edit this recipe")
+    
     if request.method == 'POST':
         form = RecipeForm(request.POST, request.FILES, instance=recipe)
         if form.is_valid():
@@ -109,8 +132,12 @@ def recipe_edit(request, id):
     })
 @login_required
 def recipe_delete(request, id):
-    # Get the recipe object by its ID and ensure it belongs to the logged-in user
-    recipe = get_object_or_404(Recipe, id=id, created_by=request.user)
+    # Get the recipe object by its ID
+    recipe = get_object_or_404(Recipe, id=id)
+    
+    # Check if user is the creator or a chef
+    if request.user != recipe.created_by and request.user.role != 'chef':
+        return HttpResponseForbidden("You don't have permission to delete this recipe")
     
     if request.method == 'POST':
         recipe.delete()
@@ -120,8 +147,15 @@ def recipe_delete(request, id):
 
 @login_required
 def recipe_list(request):
-    recipes = Recipe.objects.all()
-    return render(request, 'recipes/recipe_list.html', {'recipes': recipes})
+    """Modified recipe list to only show approved recipes to non-chefs"""
+    if request.user.role == 'chef':
+        recipes = Recipe.objects.all()
+    else:
+        recipes = Recipe.objects.filter(approval_status='approved')
+    
+    return render(request, 'recipes/recipe_list.html', {
+        'recipes': recipes
+    })
 
 def recipe_by_category(request, id):
     category = get_object_or_404(Category, id=id)  # Get the category by its ID
@@ -214,3 +248,78 @@ def edit_comment(request, comment_id):
         'form': form,
         'comment': comment
     })
+
+@login_required
+def pending_recipes(request):
+    """View for chefs to see and manage pending recipes"""
+    if request.user.role != 'chef':
+        return HttpResponseForbidden("Only chefs can access this page")
+    
+    pending_recipes = Recipe.objects.filter(approval_status='pending')
+    return render(request, 'recipes/pending_recipes.html', {
+        'pending_recipes': pending_recipes
+    })
+
+@login_required
+def approve_recipe(request, recipe_id):
+    """View for chefs to approve a recipe"""
+    if request.user.role != 'chef':
+        return HttpResponseForbidden("Only chefs can approve recipes")
+    
+    recipe = get_object_or_404(Recipe, id=recipe_id)
+    if recipe.approval_status != 'pending':
+        return HttpResponseForbidden("This recipe is not pending approval")
+    
+    recipe.approve(request.user)
+    return redirect('pending_recipes')
+
+@login_required
+def reject_recipe(request, recipe_id):
+    """View for chefs to reject a recipe"""
+    if request.user.role != 'chef':
+        return HttpResponseForbidden("Only chefs can reject recipes")
+    
+    recipe = get_object_or_404(Recipe, id=recipe_id)
+    if recipe.approval_status != 'pending':
+        return HttpResponseForbidden("This recipe is not pending approval")
+    
+    if request.method == 'POST':
+        reason = request.POST.get('reason', '')
+        recipe.reject(request.user, reason)
+        return redirect('pending_recipes')
+    
+    return render(request, 'recipes/reject_recipe.html', {
+        'recipe': recipe
+    })
+
+@login_required
+def my_recipe_status(request):
+    """View for users to see their recipe status"""
+    # Get all recipes created by the user
+    user_recipes = Recipe.objects.filter(created_by=request.user)
+    
+    # Count recipes by status
+    approved_count = user_recipes.filter(approval_status='approved').count()
+    pending_count = user_recipes.filter(approval_status='pending').count()
+    rejected_count = user_recipes.filter(approval_status='rejected').count()
+    
+    # If user is a chef, show all their recipes
+    if request.user.role == 'chef':
+        return render(request, 'recipes/my_recipe_status.html', {
+            'user_recipes': user_recipes,
+            'approved_count': approved_count,
+            'pending_count': pending_count,
+            'rejected_count': rejected_count,
+            'is_chef': True
+        })
+    # For amateur and blogueur users
+    elif request.user.role in ['amateur', 'blogueur']:
+        return render(request, 'recipes/my_recipe_status.html', {
+            'user_recipes': user_recipes,
+            'approved_count': approved_count,
+            'pending_count': pending_count,
+            'rejected_count': rejected_count,
+            'is_chef': False
+        })
+    else:
+        return HttpResponseForbidden("This page is only for chefs, amateur, and blogueur users")

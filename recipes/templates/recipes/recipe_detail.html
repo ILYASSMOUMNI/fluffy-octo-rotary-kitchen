@@ -341,16 +341,16 @@
                     </div>
                 </div>
                 
-                {% if recipe.created_by == user %}
-                <div class="recipe-actions">
-                    <a href="{% url 'recipe_edit' recipe.id %}" class="action-btn edit-btn">
-                        <i class="fas fa-edit"></i> Edit Recipe
-                    </a>
-                    <a href="{% url 'recipe_delete' recipe.id %}" class="action-btn delete-btn">
-                        <i class="fas fa-trash-alt"></i> Delete Recipe
-                    </a>
+                <div class="action-buttons">
+                    {% if user == recipe.created_by or user.role == 'chef' %}
+                        <a href="{% url 'recipe_edit' recipe.id %}" class="action-btn edit-btn">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a href="{% url 'recipe_delete' recipe.id %}" class="action-btn delete-btn">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </a>
+                    {% endif %}
                 </div>
-                {% endif %}
             </div>
         </div>
         
