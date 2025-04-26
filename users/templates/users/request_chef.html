@@ -1,0 +1,42 @@
+{% extends 'users/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Request Chef Status</h3>
+                </div>
+                <div class="card-body">
+                    {% if user.chef_application_status == 'not_applied' %}
+                        <p>By becoming a chef, you'll be able to:</p>
+                        <ul>
+                            <li>Create and publish your own recipes</li>
+                            <li>Get featured on our platform</li>
+                            <li>Connect with other chefs</li>
+                            <li>Build your culinary reputation</li>
+                        </ul>
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">Submit Application</button>
+                        </form>
+                    {% elif user.chef_application_status == 'pending' %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-clock"></i> Your application is pending review by our administrators.
+                        </div>
+                    {% elif user.chef_application_status == 'approved' %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> Congratulations! Your chef application has been approved.
+                        </div>
+                    {% elif user.chef_application_status == 'rejected' %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-times-circle"></i> Your application has been rejected. You can try again later.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

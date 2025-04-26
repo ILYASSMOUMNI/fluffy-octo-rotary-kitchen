@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container">
-        <a class="navbar-brand" href="{% url 'home' %}" style="font-weight: 600; color: #FF6B6B; font-size: 1.4rem;">
+        <a class="navbar-brand" href="{% url 'users:home' %}" style="font-weight: 600; color: #FF6B6B; font-size: 1.4rem;">
             <i class="fas fa-utensils me-1"></i>SmartRecipe
         </a>
 
@@ -12,10 +12,10 @@
             <ul class="navbar-nav me-auto">
                 {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'recipe_list' %}">Recipes</a>
+                        <a class="nav-link" href="{% url 'recipes:recipe_list' %}">Recipes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'recipe_add' %}">Add Recipe</a>
+                        <a class="nav-link" href="{% url 'recipes:recipe_add' %}">Add Recipe</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -28,18 +28,18 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'liked_recipes' %}">
+                        <a class="nav-link" href="{% url 'users:liked_recipes' %}">
                             <i class="fas fa-heart"></i> My Likes
                         </a>
                     </li>
                 {% endif %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'category_list' %}">Categories</a>
+                    <a class="nav-link" href="{% url 'recipes:category_list' %}">Categories</a>
                 </li>
             </ul>
           
             <!-- Search Form -->
-            <form method="GET" action="{% url 'recipe_search' %}" class="navbar-search-form me-3">
+            <form method="GET" action="{% url 'recipes:recipe_search' %}" class="navbar-search-form me-3">
                 <div class="input-group">
                     <input type="text" name="q" class="form-control" placeholder="Search recipes..." 
                            aria-label="Search recipes" value="{{ request.GET.q }}">
@@ -58,18 +58,18 @@
                             <span>{{ user.username }}</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{% url 'dashboard' %}">My Profile</a></li>
-                            <li><a class="dropdown-item" href="{% url 'my_recipe_status' %}">My Recipes</a></li>
+                            <li><a class="dropdown-item" href="{% url 'users:dashboard' %}">My Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'recipes:my_recipe_status' %}">My Recipes</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                            <li><a class="dropdown-item" href="{% url 'users:logout' %}">Logout</a></li>
                         </ul>
                     </li>
                 {% else %}
                     <li class="nav-item d-flex align-items-center">
-                        <a class="nav-link" href="{% url 'login' %}" style="color: #2C2B2B;">Login</a>
+                        <a class="nav-link" href="{% url 'users:login' %}" style="color: #2C2B2B;">Login</a>
                     </li>
                     <li class="nav-item ms-2 d-flex align-items-center">
-                        <a class="btn btn-sm" href="{% url 'register' %}" style="background-color: #FFDB63; color: #2C2B2B; border-radius: 32px; font-weight: 700; padding: 0.375rem 1rem;">
+                        <a class="btn btn-sm" href="{% url 'users:register' %}" style="background-color: #FFDB63; color: #2C2B2B; border-radius: 32px; font-weight: 700; padding: 0.375rem 1rem;">
                             Sign Up
                         </a>
                     </li>

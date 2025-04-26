@@ -11,7 +11,7 @@
                 <h2 class="mb-0">
                     <i class="fas fa-utensils me-2"></i>Recommended For You
                 </h2>
-                <a href="{% url 'recipe_list' %}" class="btn btn-outline-primary" style="border-color: #FF6B6B; color: #FF6B6B;">
+                <a href="{% url 'recipes:recipe_list' %}" class="btn btn-outline-primary" style="border-color: #FF6B6B; color: #FF6B6B;">
                     <i class="fas fa-arrow-left me-1"></i> Browse All Recipes
                 </a>
             </div>
@@ -54,7 +54,7 @@
                 {% endif %}
                 <div class="card-body">
                     <h5 class="card-title">
-                        <a href="{% url 'recipe_detail' rec.recipe_id %}" class="text-decoration-none text-dark">
+                        <a href="{% url 'recipes:recipe_detail' rec.recipe_id %}" class="text-decoration-none text-dark">
                             {{ rec.recipe_title|default:"Untitled Recipe" }}
                         </a>
                     </h5>
@@ -74,7 +74,7 @@
                 </div>
                 <div class="card-footer bg-transparent">
                     <div class="d-flex justify-content-between align-items-center">
-                        <a href="{% url 'recipe_detail' rec.recipe_id %}" class="btn btn-sm" style="background-color: #FF6B6B; color: white;">
+                        <a href="{% url 'recipes:recipe_detail' rec.recipe_id %}" class="btn btn-sm" style="background-color: #FF6B6B; color: white;">
                             View Recipe
                         </a>
                         {% if request.user.is_staff or debug %}
@@ -98,10 +98,10 @@
                     <h3>No Recommendations Yet</h3>
                     <p class="text-muted">We need more information about your preferences to suggest recipes.</p>
                     <div class="mt-4">
-                        <a href="{% url 'recipe_list' %}" class="btn me-2" style="background-color: #FF6B6B; color: white;">
+                        <a href="{% url 'recipes:recipe_list' %}" class="btn me-2" style="background-color: #FF6B6B; color: white;">
                             <i class="fas fa-utensils me-1"></i> Browse Recipes
                         </a>
-                        <a href="{% url 'edit_profile' %}" class="btn btn-outline-secondary">
+                        <a href="{% url 'users:edit_profile' %}" class="btn btn-outline-secondary">
                             <i class="fas fa-user-edit me-1"></i> Update Preferences
                         </a>
                     </div>

@@ -5,12 +5,13 @@ from django.core.exceptions import ValidationError
 
 # Register Form with additional fields (role, bio, profile_picture)
 class RegisterForm(UserCreationForm):
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm Password'}))
+    email = forms.EmailField()
+    bio = forms.CharField(widget=forms.Textarea(attrs={'rows': 4}), required=False)
+    profile_picture = forms.ImageField(required=False)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'role', 'profile_picture', 'bio', 'password1', 'password2']
+        fields = ['username', 'email', 'password1', 'password2', 'bio', 'profile_picture']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
@@ -28,7 +29,7 @@ class RegisterForm(UserCreationForm):
 class EditProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'email', 'profile_picture', 'bio']
+        fields = ['email', 'bio', 'profile_picture']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),

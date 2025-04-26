@@ -7,7 +7,7 @@
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-primary">Save Changes</button>
-        <a href="{% url 'recipe_detail' comment.recipe.id %}" class="btn btn-secondary">Cancel</a>
+        <a href="{% url 'recipes:recipe_detail' comment.recipe.id %}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 {% endblock %}

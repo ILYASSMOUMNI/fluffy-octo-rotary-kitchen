@@ -11,13 +11,22 @@ from recipes.models import Recipe
 
 class User(AbstractUser):
     ROLE_CHOICES = [
-        ('chef', 'Chef'),
-        ('amateur', 'Amateur'),
         ('blogueur', 'Blogueur'),
+        ('chef', 'Chef'),
     ]
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, blank=True) # Allow blank role?
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='blogueur')
     bio = models.TextField(blank=True, null=True)
     profile_picture = CloudinaryField('image', folder='profile_pictures', blank=True, null=True)
+    chef_application_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('not_applied', 'Not Applied'),
+            ('pending', 'Pending'),
+            ('approved', 'Approved'),
+            ('rejected', 'Rejected')
+        ],
+        default='not_applied'
+    )
 
     # --- Add Preference Fields Here ---
     # Use strings 'app_name.ModelName' for M2M fields to avoid import issues
@@ -39,6 +48,10 @@ class User(AbstractUser):
     def has_liked(self, recipe):
         return self.liked_recipes.filter(pk=recipe.pk).exists()
     def __str__(self):
-        # Avoid error if role is blank:
-        role_display = self.get_role_display() if self.role else "No Role"
-        return f"{self.username} ({role_display})"
+        return f"{self.username} ({self.get_role_display()})"
+
+    def save(self, *args, **kwargs):
+        if self.is_superuser:
+            self.role = 'chef'  # Superusers are automatically chefs
+            self.chef_application_status = 'approved'
+        super().save(*args, **kwargs)

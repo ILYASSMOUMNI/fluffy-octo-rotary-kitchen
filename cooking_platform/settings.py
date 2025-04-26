@@ -185,3 +185,8 @@ CLOUDINARY_STORAGE = {
 
 # Media files configuration
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Admin credentials
+ADMIN_USERNAME='admin'
+ADMIN_EMAIL='admin@example.com'
+ADMIN_PASSWORD='admin123'

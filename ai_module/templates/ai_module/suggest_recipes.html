@@ -284,7 +284,7 @@
             {% for suggestion in suggestions %}
             <div class="recipe-card">
                 {% if suggestion.recipe_id %}
-                <a href="{% url 'recipe_detail' suggestion.recipe_id %}" class="recipe-link">
+                <a href="{% url 'recipes:recipe_detail' suggestion.recipe_id %}" class="recipe-link">
                 {% endif %}
                     <div class="recipe-image">
                         <div class="image-placeholder" style="background-color: {% cycle '#FFE8D6' '#DDEEFF' '#E8F5E9' '#F3E5F5' as cardcolors %}">

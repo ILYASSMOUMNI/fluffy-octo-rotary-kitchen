@@ -6,9 +6,10 @@ from django.contrib import messages
 from recipes.models import Recipe
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+from .models import User
+from django.contrib.auth import get_user_model
 
-
-
+User = get_user_model()
 
 # Register View
 def register_view(request):
@@ -30,7 +31,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
-            return redirect('home')
+            return redirect('users:home')
         else:
             messages.error(request, 'Invalid username or password')
     return render(request, 'users/login.html')
@@ -95,3 +96,42 @@ def like_recipe(request, id):
             'like_count': recipe.likes.count()
         })
     return JsonResponse({'status': 'error'}, status=400)
+
+@login_required
+def request_chef_status(request):
+    if request.method == 'POST':
+        user = request.user
+        if user.chef_application_status == 'not_applied':
+            user.chef_application_status = 'pending'
+            user.save()
+            messages.success(request, 'Your chef application has been submitted for review.')
+        else:
+            messages.warning(request, 'You have already submitted an application.')
+        return redirect('users:profile')
+    return render(request, 'users/request_chef.html')
+
+@login_required
+def process_chef_application(request, user_id):
+    if not request.user.is_superuser:
+        messages.error(request, 'You do not have permission to perform this action.')
+        return redirect('home')
+    
+    try:
+        user = User.objects.get(id=user_id)
+        if request.method == 'POST':
+            action = request.POST.get('action')
+            if action == 'approve':
+                user.role = 'chef'
+                user.chef_application_status = 'approved'
+                user.save()
+                messages.success(request, f'{user.username} has been approved as a chef.')
+            elif action == 'reject':
+                user.chef_application_status = 'rejected'
+                user.save()
+                messages.warning(request, f'{user.username}\'s application has been rejected.')
+            return redirect('adminpanel:dashboard')
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+        return redirect('adminpanel:dashboard')
+    
+    return render(request, 'users/process_application.html', {'applicant': user})

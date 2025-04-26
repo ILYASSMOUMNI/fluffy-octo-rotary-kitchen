@@ -417,15 +417,15 @@
                 {% endif %}
                 
                 <div class="action-buttons">
-                    <a href="{% url 'recipe_detail' recipe.id %}" class="action-btn view-btn">
+                    <a href="{% url 'recipes:recipe_detail' recipe.id %}" class="action-btn view-btn">
                         <i class="fas fa-eye"></i> View
                     </a>
                     {% if recipe.approval_status != 'approved' %}
-                        <a href="{% url 'recipe_edit' recipe.id %}" class="action-btn edit-btn">
+                        <a href="{% url 'recipes:recipe_edit' recipe.id %}" class="action-btn edit-btn">
                             <i class="fas fa-edit"></i> Edit
                         </a>
                     {% endif %}
-                    <a href="{% url 'recipe_delete' recipe.id %}" class="action-btn delete-btn">
+                    <a href="{% url 'recipes:recipe_delete' recipe.id %}" class="action-btn delete-btn">
                         <i class="fas fa-trash-alt"></i> Delete
                     </a>
                 </div>
@@ -438,7 +438,7 @@
         <i class="fas fa-utensils empty-icon"></i>
         <h3 class="empty-title">No Recipes Yet</h3>
         <p class="empty-text">Start your culinary journey by adding your first recipe. Share your favorite dishes with our community of food lovers.</p>
-        <a href="{% url 'recipe_add' %}" class="add-recipe-btn">
+        <a href="{% url 'recipes:recipe_add' %}" class="add-recipe-btn">
             <i class="fas fa-plus-circle"></i> Create First Recipe
         </a>
     </div>

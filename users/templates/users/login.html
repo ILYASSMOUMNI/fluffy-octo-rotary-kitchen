@@ -49,17 +49,12 @@
                     
                     <div class="text-center">
                         <p class="mb-2">Don't have an account?</p>
-                        <a href="{% url 'register' %}" class="btn btn-outline-primary rounded-pill px-4" style="border-color: #FF6B6B; color: #FF6B6B;">
+                        <a href="{% url 'users:register' %}" class="btn btn-outline-primary rounded-pill px-4" style="border-color: #FF6B6B; color: #FF6B6B;">
                             <i class="fas fa-user-plus me-2"></i> Register Here
                         </a>
                         <hr class="my-4">
 
-                    <div class="text-center">
-    <p class="mb-2">Or login with</p>
-    <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-outline-danger rounded-pill px-4">
-        <i class="fab fa-google me-2"></i> Login with Google
-    </a>
-                    </div>
+            
 
                     </div>
                 </div>

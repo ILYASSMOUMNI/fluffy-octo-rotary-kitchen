@@ -8,7 +8,7 @@
 {% else %}
     <p>No profile picture</p>
 {% endif %}
-<a href="{% url 'liked_recipes' %}" class="btn btn-outline-primary">
+<a href="{% url 'recipes:liked_recipes' %}" class="btn btn-outline-primary">
     <i class="fas fa-heart"></i> View Liked Recipes
 </a>
-<p><a href="{% url 'logout' %}">Logout</a></p>
+<p><a href="{% url 'users:logout' %}">Logout</a></p>

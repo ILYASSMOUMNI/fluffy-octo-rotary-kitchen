@@ -12,11 +12,11 @@
             <p class="role-badge">{{ user.get_role_display }}</p>
         </div>
         <div class="header-actions">
-            <a href="{% url 'edit_profile' %}" class="action-btn">
+            <a href="{% url 'users:edit_profile' %}" class="action-btn">
                 <i class="fas fa-cog"></i>
                 <span class="btn-label">Settings</span>
             </a>
-            <a href="{% url 'logout' %}" class="action-btn logout">
+            <a href="{% url 'users:logout' %}" class="action-btn logout">
                 <i class="fas fa-sign-out-alt"></i>
                 <span class="btn-label">Logout</span>
             </a>
@@ -58,14 +58,14 @@
             <div class="dashboard-section">
                 <h2><i class="fas fa-utensils"></i> Chef Tools</h2>
                 <div class="action-grid">
-                    <a href="{% url 'recipe_add' %}" class="action-card">
+                    <a href="{% url 'recipes:recipe_add' %}" class="action-card">
                         <div class="action-icon" style="background-color: #FF6B6B;">
                             <i class="fas fa-plus"></i>
                         </div>
                         <h4>New Recipe</h4>
                         <p>Create and share your culinary creations</p>
                     </a>
-                    <a href="{% url 'pending_recipes' %}" class="action-card">
+                    <a href="{% url 'recipes:pending_recipes' %}" class="action-card">
                         <div class="action-icon" style="background-color: #FF6B6B;">
                             <i class="fas fa-book-open"></i>
                         </div>
@@ -80,14 +80,14 @@
             <div class="dashboard-section">
                 <h2><i class="fas fa-search"></i> Discover Recipes</h2>
                 <div class="action-grid">
-                    <a href="{% url 'recipe_list' %}" class="action-card">
+                    <a href="{% url 'recipes:recipe_list' %}" class="action-card">
                         <div class="action-icon" style="background-color: #FF6B6B;">
                             <i class="fas fa-compass"></i>
                         </div>
                         <h4>Browse</h4>
                         <p>Find new recipes to try</p>
                     </a>
-                    <a href="{% url 'liked_recipes' %}" class="action-card">
+                    <a href="{% url 'users:liked_recipes' %}" class="action-card">
                         <div class="action-icon" style="background-color: #FF6B6B;">
                             <i class="fas fa-heart"></i>
                         </div>

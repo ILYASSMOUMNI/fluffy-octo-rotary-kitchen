@@ -321,13 +321,13 @@
                 </div>
                 
                 <div class="action-buttons">
-                    <a href="{% url 'recipe_detail' recipe.id %}" class="action-btn view-btn">
+                    <a href="{% url 'recipes:recipe_detail' recipe.id %}" class="action-btn view-btn">
                         <i class="fas fa-eye"></i> View Details
                     </a>
-                    <a href="{% url 'approve_recipe' recipe.id %}" class="action-btn approve-btn">
+                    <a href="{% url 'arecipes:pprove_recipe' recipe.id %}" class="action-btn approve-btn">
                         <i class="fas fa-check"></i> Approve
                     </a>
-                    <a href="{% url 'reject_recipe' recipe.id %}" class="action-btn reject-btn">
+                    <a href="{% url 'recipes:reject_recipe' recipe.id %}" class="action-btn reject-btn">
                         <i class="fas fa-times"></i> Reject
                     </a>
                 </div>

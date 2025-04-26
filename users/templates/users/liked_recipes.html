@@ -167,7 +167,7 @@
         <h1 class="display-4 fw-bold mb-3">My Favorite Recipes</h1>
         <p class="lead mb-4">All the delicious recipes you've loved in one place</p>
         <div class="d-flex justify-content-center gap-3">
-            <a href="{% url 'recipe_list' %}" class="btn btn-light btn-lg rounded-pill px-4">
+            <a href="{% url 'recipes:recipe_list' %}" class="btn btn-light btn-lg rounded-pill px-4">
                 <i class="fas fa-utensils me-2"></i> Browse More
             </a>
         </div>
@@ -224,12 +224,12 @@
                     <div class="mt-auto">
                         <div class="d-grid gap-2">
                             <!-- Golden View Recipe Button -->
-                            <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-view-recipe">
+                            <a href="{% url 'recipes:recipe_detail' recipe.id %}" class="btn btn-view-recipe">
                                 <i class="fas fa-book-open"></i> View Recipe
                             </a>
-                            <form method="post" action="{% url 'recipe_detail' recipe.id %}">
+                            <form method="post" action="{% url 'recipes:recipe_detail' recipe.id %}">
                                 {% csrf_token %}
-                                <input type="hidden" name="redirect_to" value="{% url 'liked_recipes' %}">
+                                <input type="hidden" name="redirect_to" value="{% url 'users:liked_recipes' %}">
                                 <button type="submit" name="like" class="btn btn-remove">
                                     <i class="fas fa-heart-broken me-2"></i> Remove
                                 </button>
@@ -294,7 +294,7 @@
         </div>
         <h3 class="mb-3">Your favorites collection is empty</h3>
         <p class="text-muted mb-4">Start exploring recipes and click the <i class="fas fa-heart text-danger"></i> button to save them here!</p>
-        <a href="{% url 'recipe_list' %}" class="btn btn-primary-custom btn-lg">
+        <a href="{% url 'recipes:recipe_list' %}" class="btn btn-primary-custom btn-lg">
             <i class="fas fa-utensils me-2"></i> Discover Recipes
         </a>
     </div>

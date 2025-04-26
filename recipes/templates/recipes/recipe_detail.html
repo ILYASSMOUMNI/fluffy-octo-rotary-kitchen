@@ -343,10 +343,10 @@
                 
                 <div class="action-buttons">
                     {% if user == recipe.created_by or user.role == 'chef' %}
-                        <a href="{% url 'recipe_edit' recipe.id %}" class="action-btn edit-btn">
+                        <a href="{% url 'recipes:recipe_edit' recipe.id %}" class="action-btn edit-btn">
                             <i class="fas fa-edit"></i> Edit
                         </a>
-                        <a href="{% url 'recipe_delete' recipe.id %}" class="action-btn delete-btn">
+                        <a href="{% url 'recipes:recipe_delete' recipe.id %}" class="action-btn delete-btn">
                             <i class="fas fa-trash-alt"></i> Delete
                         </a>
                     {% endif %}
@@ -385,7 +385,7 @@
 <!-- Like Button -->
 <!-- Like Section -->
 <div class="like-section">
-    <form method="post" action="{% url 'recipe_detail' recipe.id %}">
+    <form method="post" action="{% url 'recipes:recipe_detail' recipe.id %}">
         {% csrf_token %}
         <button type="submit" name="like" class="btn-like {% if is_liked %}liked{% endif %}">
             <i class="fas fa-heart"></i>
@@ -406,7 +406,7 @@
         <button type="submit" name="comment" class="btn btn-primary">Post Comment</button>
     </form>
     {% else %}
-    <p><a href="{% url 'login' %}">Log in</a> to leave a comment</p>
+    <p><a href="{% url 'users:login' %}">Log in</a> to leave a comment</p>
     {% endif %}
     
     <div class="comment-list">

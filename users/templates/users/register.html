@@ -210,20 +210,9 @@ button[type="submit"]:hover {
             </div>
         {% endif %}
 
-        {% if form.role %}
-             <div class="form-group">
-                 <label for="{{ form.role.id_for_label }}">I am a:</label>
-                  {{ form.role }} {# Needs styling, maybe 'form-select' class via widget attrs #}
-                  {% if form.role.errors %}
-                      <ul class="errorlist">
-                          {% for error in form.role.errors %}
-                              <li>{{ error }}</li>
-                          {% endfor %}
-                      </ul>
-                  {% endif %}
-             </div>
-        {% endif %}
-
+        <div class="alert alert-info">
+            <small>You will be registered as a Blogueur. You can request to become a Chef later from your profile.</small>
+        </div>
 
             <button type="submit">Create Account</button>
         </form>

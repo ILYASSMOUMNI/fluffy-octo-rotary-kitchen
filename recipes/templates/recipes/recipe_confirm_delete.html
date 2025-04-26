@@ -16,7 +16,7 @@
                         {% csrf_token %}
                         <div class="d-flex justify-content-between">
                             <button type="submit" class="btn btn-danger">Delete</button>
-                            <a href="{% url 'recipe_list' %}" class="btn btn-secondary">Cancel</a>
+                            <a href="{% url 'recipes:recipe_list' %}" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>
