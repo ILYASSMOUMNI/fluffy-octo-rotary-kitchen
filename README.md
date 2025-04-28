@@ -1,14 +1,22 @@
+task : notifications d'admin  !!!
+
+sudo apt update
+sudo apt install python3-pip python3-dev libpq-dev postgresql-client
+
+pip3 install -r requirements.txt
+
+
+
 important changes :
 
-- added pending recipes page 
+- added pending recipes page
 - added recipe status page for amateur users
-- check profile nav bar 
+- check profile nav bar
 - fixed some redirection in dahsboard page
 - chef can approve or reject a recipe added by other users
 - chef can delete or edit any recipes
 - chef's recipes are auto approved
 - 
-
 
 ### 1. Gestion des utilisateurs
 

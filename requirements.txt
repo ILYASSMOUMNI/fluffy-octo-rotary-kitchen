@@ -1,0 +1,20 @@
+# Core Django and Database
+Django==5.1.7
+psycopg2-binary==2.9.9
+
+# Environment and Cloud Storage
+python-dotenv==1.0.0
+cloudinary==1.37.0
+django-cloudinary-storage==0.3.0
+
+# Frontend Helpers
+django-widget-tweaks==1.5.0
+
+# Social Authentication
+social-auth-app-django==5.4.0
+social-auth-core==4.5.0
+
+# System Dependencies (often needed on Ubuntu)
+pillow==10.2.0  # For image processing
+python3-dev  # Required for some packages (install via apt)
+libpq-dev  # PostgreSQL development files (install via apt)
