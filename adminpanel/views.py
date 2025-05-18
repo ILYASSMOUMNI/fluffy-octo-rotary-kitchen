@@ -18,11 +18,19 @@ from users.models import User
 from django.db.models import Count
 from .models import Application
 
-
 User = get_user_model()
 
+def admin_only(view_func):
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.role == 'admin':
+            return view_func(request, *args, **kwargs)
+        return redirect('adminpanel:admin_login')
+    return wrapper
+
+@login_required
+@admin_only
 def applications_list(request):
-    applications = Application.objects.all()
+    applications = User.objects.filter(chef_application_status__in=['pending', 'approved', 'rejected']).order_by('-date_joined')
     return render(request, 'adminpanel/applications.html', {'applications': applications})
 
 def users_list(request):
@@ -47,24 +55,17 @@ def admin_login(request):
     
     return render(request, 'adminpanel/admin_login.html')
 
-def admin_only(view_func):
-    def wrapper(request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.role == 'admin':
-            return view_func(request, *args, **kwargs)
-        return redirect('adminpanel:admin_login')
-    return wrapper
-
 @login_required
 @admin_only
 def dashboard(request):
     # Get statistics
     total_users = User.objects.count()
     total_chefs = User.objects.filter(role='chef').count()
-    pending_applications = ChefApplication.objects.filter(status='pending').count()
+    pending_applications = User.objects.filter(chef_application_status='pending').count()
     total_recipes = Recipe.objects.count()
     
     # Get recent applications
-    recent_applications = ChefApplication.objects.order_by('-created_at')[:5]
+    recent_applications = User.objects.filter(chef_application_status__in=['pending', 'approved', 'rejected']).order_by('-date_joined')[:5]
     
     # Get recent activities
     recent_activities = [
@@ -96,25 +97,30 @@ def dashboard(request):
     
     return render(request, 'adminpanel/admin_dashboard.html', context)
 
+@login_required
+@admin_only
+def approve_application(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    
+    if request.method == 'POST':
+        user.role = 'chef'
+        user.chef_application_status = 'approved'
+        user.save()
+        messages.success(request, f"{user.username} has been approved as a Chef!")
+        return redirect('adminpanel:applications_list')
+    
+    return render(request, 'adminpanel/approve_application.html', {'application': user})
 
-
-def approve_application(request, application_id):
-    application = get_object_or_404(Application, id=application_id)
-    application.status = 'approved'
-    application.save()
-
-    # Also make the user a 'chef'
-    application.user.role = 'chef'
-    application.user.save()
-
-    messages.success(request, f"{application.user.username} has been approved as a Chef!")
-    return redirect('adminpanel:applications_list')
-
-def reject_application(request, application_id):
-    application = get_object_or_404(Application, id=application_id)
-    application.status = 'rejected'
-    application.save()
-
-    messages.info(request, f"{application.user.username}'s application was rejected.")
-    return redirect('adminpanel:applications_list')
+@login_required
+@admin_only
+def reject_application(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    
+    if request.method == 'POST':
+        user.chef_application_status = 'rejected'
+        user.save()
+        messages.info(request, f"{user.username}'s application was rejected.")
+        return redirect('adminpanel:applications_list')
+    
+    return render(request, 'adminpanel/reject_application.html', {'application': user})
 

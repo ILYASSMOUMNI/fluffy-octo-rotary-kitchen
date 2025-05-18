@@ -6,9 +6,9 @@
         <table class="table table-bordered table-hover">
             <thead class="table-light">
                 <tr>
-                    <th>User</th>
+                    <th>Username</th>
                     <th>Application Date</th>
-                    <th>Message</th>
+                    <th>Bio</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -16,12 +16,16 @@
             <tbody>
                 {% for application in applications %}
                 <tr>
-                    <td>{{ application.user.username }}</td>
-                    <td>{{ application.created_at|date:"Y-m-d H:i" }}</td>
-                    <td>{{ application.message }}</td>
-                    <td>{{ application.status }}</td>
+                    <td>{{ application.username }}</td>
+                    <td>{{ application.date_joined|date:"Y-m-d H:i" }}</td>
+                    <td>{{ application.bio|default:"No bio provided" }}</td>
                     <td>
-                        {% if application.status == 'pending' %}
+                        <span class="badge bg-{{ application.chef_application_status|lower }} text-dark">
+                            {{ application.chef_application_status|title }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if application.chef_application_status == 'pending' %}
                         <a href="{% url 'adminpanel:approve_application' application.id %}" class="btn btn-success btn-sm">Approve</a>
                         <a href="{% url 'adminpanel:reject_application' application.id %}" class="btn btn-danger btn-sm">Reject</a>
                         {% else %}

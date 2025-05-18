@@ -55,3 +55,10 @@ class User(AbstractUser):
             self.role = 'chef'  # Superusers are automatically chefs
             self.chef_application_status = 'approved'
         super().save(*args, **kwargs)
+
+class UserSession(models.Model):
+    user = models.OneToOneField('User', on_delete=models.CASCADE, related_name='session')
+    session_key = models.CharField(max_length=40, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.session_key}"

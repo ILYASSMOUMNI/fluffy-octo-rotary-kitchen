@@ -58,13 +58,13 @@
                             <tbody>
                                 {% for application in recent_applications %}
                                 <tr>
-                                    <td>{{ application.user.username }}</td>
+                                    <td>{{ application.username }}</td>
                                     <td>
-                                        <span class="badge bg-{{ application.status|lower }}">
-                                            {{ application.status }}
+                                        <span class="badge bg-{{ application.chef_application_status|lower }} text-dark">
+                                            {{ application.chef_application_status|title }}
                                         </span>
                                     </td>
-                                    <td>{{ application.created_at|date:"M d, Y" }}</td>
+                                    <td>{{ application.date_joined|date:"M d, Y" }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

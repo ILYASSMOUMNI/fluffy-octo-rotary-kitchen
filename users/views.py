@@ -50,7 +50,7 @@ def edit_profile_view(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Your profile has been updated successfully!')
-            return redirect('dashboard')  # Redirect to dashboard after success
+            return redirect('users:dashboard')  # Redirect to dashboard after success
     else:
         form = EditProfileForm(instance=request.user)
     
@@ -107,7 +107,7 @@ def request_chef_status(request):
             messages.success(request, 'Your chef application has been submitted for review.')
         else:
             messages.warning(request, 'You have already submitted an application.')
-        return redirect('users:profile')
+        return redirect('users:dashboard')
     return render(request, 'users/request_chef.html')
 
 @login_required
@@ -135,3 +135,23 @@ def process_chef_application(request, user_id):
         return redirect('adminpanel:dashboard')
     
     return render(request, 'users/process_application.html', {'applicant': user})
+
+def edit_profile(request):
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
+
+        if form.is_valid():
+            action = request.POST.get('action')
+
+            if action == 'send_application':
+                # Handle the application logic (e.g., flag the user or send a request)
+                messages.success(request, 'Application sent successfully!')
+            elif action == 'save':
+                form.save()
+                messages.success(request, 'Profile updated successfully!')
+
+            return redirect('users:edit_profile')
+    else:
+        form = ProfileForm(instance=request.user.profile)
+
+    return render(request, 'users/edit_profile.html', {'form': form})

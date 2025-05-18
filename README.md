@@ -1,11 +1,12 @@
-task : notifications d'admin  !!!
+task : notifications d'admin  
+
+session , !!!
+
 
 sudo apt update
 sudo apt install python3-pip python3-dev libpq-dev postgresql-client
 
 pip3 install -r requirements.txt
-
-
 
 important changes :
 

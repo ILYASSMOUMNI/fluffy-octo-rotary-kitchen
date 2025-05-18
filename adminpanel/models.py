@@ -1,6 +1,6 @@
 from django.db import models
 from users.models import User
-
+from django.contrib.sessions.models import Session
 class AdminProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='admin_profile')
     can_approve_chefs = models.BooleanField(default=True)

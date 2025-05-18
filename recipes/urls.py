@@ -16,4 +16,5 @@ urlpatterns = [
     path('approve/<int:recipe_id>/', views.approve_recipe, name='approve_recipe'),
     path('reject/<int:recipe_id>/', views.reject_recipe, name='reject_recipe'),
     path('my-status/', views.my_recipe_status, name='my_recipe_status'),
+    
 ]
